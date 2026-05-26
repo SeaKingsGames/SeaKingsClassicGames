@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fef6e0">
+<title>Ball Slider · SeaKingsGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Bagel+Fat+One&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+  :root{
+    --bg:#fef6e0; --bg-2:#fdecc0;
+    --gold:#ffc83a; --gold-deep:#b88300;
+    --ink:#8b4f6b; --ink-light:#b878a0; --ink-dim:#bea3b0;
+    --shadow:0 4px 0 rgba(120,80,100,.18), 0 8px 20px rgba(120,80,100,.12);
+  }
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:'Fredoka',system-ui,sans-serif;
+    background:linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
+    color:var(--ink); display:flex;flex-direction:column;
+    overscroll-behavior:none;touch-action:manipulation;
+  }
+  button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:none}
+  .screen{position:fixed;inset:0;display:none;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  .screen.active{display:flex}
+
+  /* MENU */
+  #menu{align-items:center;justify-content:center;gap:22px;padding:30px 24px 90px}
+  .logo{
+    font-family:'Bagel Fat One',sans-serif;
+    font-size:clamp(36px,11vw,60px);line-height:.95;text-align:center;color:var(--ink);
+    text-shadow:0 4px 0 var(--ink-light), 0 8px 24px rgba(139,79,107,.25);
+    letter-spacing:.5px;
+  }
+  .logo small{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.28em;color:var(--ink-light);letter-spacing:3px;margin-top:8px;text-shadow:none}
+  .ball-deco{
+    width:60px;height:60px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,#fff 0%,#e8e4d8 70%,#a8a298 100%);
+    box-shadow:var(--shadow);margin-bottom:-10px;
+  }
+  .diff-list{display:flex;flex-direction:column;gap:12px;width:min(360px,90vw)}
+  .diff-btn{
+    padding:16px 22px;border-radius:18px;background:#fff;box-shadow:var(--shadow);
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:19px;font-weight:600;color:var(--ink);transition:transform .1s;
+  }
+  .diff-btn:active{transform:translateY(2px)}
+  .diff-btn .tag{
+    font-size:12px;font-weight:600;padding:4px 10px;border-radius:8px;
+    background:rgba(139,79,107,.1);color:var(--ink-light);letter-spacing:.5px;
+  }
+  .diff-btn[data-d="facil"] .tag{color:#3a8c4a;background:#dff5e4}
+  .diff-btn[data-d="medio"] .tag{color:#2a7cb8;background:#d9ecfa}
+  .diff-btn[data-d="dificil"] .tag{color:#c87020;background:#fde8d0}
+  .diff-btn[data-d="extraDificil"] .tag{color:#c83558;background:#fde0e8}
+  .record-line{font-size:13px;color:var(--ink-light);font-weight:500;margin-top:4px;font-variant-numeric:tabular-nums}
+
+  /* JUEGO */
+  #game .topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 4px;flex-shrink:0;gap:8px}
+  .icon-btn{
+    width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);
+    font-size:22px;font-weight:700;transition:transform .1s;flex-shrink:0;
+  }
+  .icon-btn:active{transform:translateY(2px)}
+  .icon-btn.small{width:38px;height:38px;font-size:16px}
+  .level-title{text-align:center;flex:1;min-width:0}
+  .level-title .badge{
+    display:inline-block;font-size:10px;font-weight:600;letter-spacing:2px;
+    padding:3px 10px;border-radius:10px;background:rgba(139,79,107,.1);color:var(--ink-light);
+  }
+  .level-title h1{font-size:20px;font-weight:700;color:var(--ink)}
+
+  /* STATS + PROGRESO */
+  .stats{display:flex;justify-content:center;gap:22px;padding:6px 16px 2px;font-size:13px;font-weight:600;color:var(--ink-light);font-variant-numeric:tabular-nums}
+  .stats span{display:inline-flex;align-items:center;gap:6px}
+  .stats .val{color:var(--ink);font-weight:700;font-size:17px}
+  .progress-wrap{padding:0 24px 4px}
+  .progress{
+    height:6px;background:rgba(139,79,107,.15);border-radius:3px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;background:linear-gradient(90deg,#39a9ee 0%,#26c6da 100%);
+    width:0%;transition:width .3s cubic-bezier(.34,1.56,.64,1);
+    border-radius:3px;
+  }
+
+  /* CANVAS */
+  .board-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:6px;overflow:hidden;position:relative}
+  canvas{display:block;touch-action:none}
+  .swipe-hint{
+    position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+    color:var(--ink-light);font-size:12px;opacity:.7;
+    background:rgba(255,255,255,.7);padding:4px 12px;border-radius:12px;
+    pointer-events:none;transition:opacity .4s;
+  }
+
+  /* TOOLBAR */
+  #game .toolbar{display:flex;justify-content:center;gap:30px;padding:6px 18px 12px;flex-shrink:0}
+  .tool{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ink-light);position:relative}
+  .tool .circle{
+    width:50px;height:50px;border-radius:50%;background:var(--gold);color:#5a3a00;
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    box-shadow:0 4px 0 var(--gold-deep);transition:transform .1s;
+  }
+  .tool.disabled .circle{background:#e8d8c0;color:#a89888;box-shadow:0 4px 0 #c8b8a0}
+  .tool:active .circle{transform:translateY(2px)}
+  .tool .badge-num{
+    position:absolute;top:-2px;right:-2px;background:var(--ink);color:#fff;border-radius:50%;
+    width:20px;height:20px;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;
+  }
+
+  /* AD BANNER */
+  .ad-banner-bottom{
+    position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom);
+    display:flex;justify-content:center;align-items:center;padding:8px 0;
+    background:rgba(255,255,255,.85);backdrop-filter:blur(8px);
+    z-index:20;min-height:50px;border-top:1px solid rgba(139,79,107,.1);
+  }
+  .ad-banner-bottom iframe{max-width:100%}
+
+  /* MODALES */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(40,20,30,.55);backdrop-filter:blur(4px);
+    z-index:100;display:none;align-items:center;justify-content:center;padding:20px;
+    animation:fadeIn .2s;
+  }
+  .modal-overlay.active{display:flex}
+  .modal{
+    background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+    border-radius:24px;padding:24px 20px;width:min(380px,100%);max-height:90vh;overflow-y:auto;
+    text-align:center;box-shadow:0 20px 60px rgba(40,20,30,.4);
+    animation:popIn .3s cubic-bezier(.34,1.56,.64,1);color:var(--ink);
+  }
+  .modal .emoji{font-size:56px;margin-bottom:4px;display:inline-block}
+  .modal h2{font-family:'Bagel Fat One',sans-serif;color:var(--ink);font-size:28px;line-height:1;margin-bottom:6px}
+  .modal p{color:var(--ink-light);font-size:15px;margin-bottom:14px}
+  .achievement-card{
+    background:linear-gradient(135deg,var(--gold) 0%,#ffaa20 100%);
+    border-radius:18px;padding:18px;margin:12px 0;color:#3a2400;
+    box-shadow:0 8px 0 var(--gold-deep), inset 0 -2px 0 rgba(255,255,255,.3);
+  }
+  .ach-title{font-size:11px;letter-spacing:3px;font-weight:700;opacity:.7;margin-bottom:8px}
+  .ach-stats{display:flex;justify-content:space-around;gap:8px}
+  .ach-stat{flex:1}
+  .ach-num{font-family:'Bagel Fat One',sans-serif;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+  .ach-lbl{font-size:11px;font-weight:600;opacity:.7;letter-spacing:1px;margin-top:4px}
+  .new-record{
+    display:inline-block;background:#e91e63;color:#fff;padding:4px 12px;border-radius:8px;
+    font-size:11px;font-weight:700;letter-spacing:1.5px;margin-bottom:6px;animation:wobble .6s ease-in-out infinite;
+  }
+  @keyframes wobble{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  .ad-label{font-size:10px;color:var(--ink-light);opacity:.6;letter-spacing:2px;margin:8px 0 4px}
+  .ad-slot{display:flex;justify-content:center;align-items:center;min-height:250px;background:rgba(139,79,107,.05);border-radius:12px;overflow:hidden}
+  .ad-slot iframe{max-width:100%;border:0}
+  .modal-btns{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .btn-row{display:flex;gap:8px}
+  .btn-row .btn-secondary{flex:1}
+  .btn-primary{padding:14px 22px;border-radius:14px;background:linear-gradient(180deg,var(--gold) 0%,#e0a020 100%);color:#3a2400;font-weight:700;font-size:17px;box-shadow:0 4px 0 var(--gold-deep)}
+  .btn-secondary{padding:13px 18px;border-radius:14px;background:#fff;color:var(--ink);font-weight:600;font-size:15px;box-shadow:0 4px 0 rgba(139,79,107,.15);display:flex;align-items:center;justify-content:center;gap:6px}
+  .btn-ghost{padding:10px;color:var(--ink-light);font-size:14px;font-weight:500}
+
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+  .bounce{animation:bounce 1.2s infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+</style>
+</head>
+<body>
+
+<section id="menu" class="screen active">
+  <div class="ball-deco"></div>
+  <div class="logo">BALL<br>SLIDER<small>SeaKingsGames</small></div>
+  <div class="diff-list" id="diff-list"></div>
+  <a href="index.html" style="color:var(--ink-light);font-size:14px;text-decoration:none">← Volver al inicio</a>
+  <div class="ad-banner-bottom" id="ad-bottom-menu"></div>
+</section>
+
+<section id="game" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" id="btn-back">‹</button>
+    <div class="level-title">
+      <div class="badge" id="diff-badge">FÁCIL</div>
+      <h1>Nivel <span id="level-num">1</span></h1>
+    </div>
+    <button class="icon-btn small" id="btn-sound">🔊</button>
+    <button class="icon-btn" id="btn-restart">↻</button>
+  </div>
+  <div class="stats">
+    <span>⏱️ <span class="val" id="stat-time">0:00</span></span>
+    <span>🎯 <span class="val" id="stat-moves">0</span> mov</span>
+    <span>📦 <span class="val" id="stat-cells">0/0</span></span>
+  </div>
+  <div class="progress-wrap"><div class="progress"><div class="progress-fill" id="progress-fill"></div></div></div>
+  <div class="board-wrap">
+    <canvas id="board"></canvas>
+    <div class="swipe-hint" id="swipe-hint">Desliza para mover ↑ ↓ ← →</div>
+  </div>
+  <div class="toolbar">
+    <button class="tool" id="btn-hint">
+      <div class="circle">💡</div>
+      <span class="badge-num" id="hint-count">2</span>
+      <span>Pista</span>
+    </button>
+  </div>
+</section>
+
+<div class="modal-overlay" id="modal-win">
+  <div class="modal">
+    <div class="emoji bounce">🏆</div>
+    <div id="new-record-tag" style="display:none"><span class="new-record">¡NUEVO RÉCORD!</span></div>
+    <h2>¡Lo lograste!</h2>
+    <p>Nivel <span id="win-level"></span> completado</p>
+    <div class="achievement-card">
+      <div class="ach-title">TU LOGRO</div>
+      <div class="ach-stats">
+        <div class="ach-stat"><div class="ach-num" id="win-time">0:00</div><div class="ach-lbl">TIEMPO</div></div>
+        <div class="ach-stat"><div class="ach-num" id="win-moves">0</div><div class="ach-lbl">MOVIMIENTOS</div></div>
+      </div>
+    </div>
+    <div class="ad-label">PUBLICIDAD</div>
+    <div class="ad-slot" id="ad-win"></div>
+    <div class="modal-btns">
+      <button class="btn-primary" id="btn-next">Siguiente nivel →</button>
+      <div class="btn-row">
+        <button class="btn-secondary" id="btn-share">📤 Compartir</button>
+        <button class="btn-secondary" id="btn-save">💾 Guardar</button>
+      </div>
+      <button class="btn-ghost" id="btn-menu-win">Cambiar dificultad</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-restart">
+  <div class="modal">
+    <div class="emoji">🔄</div>
+    <h2>¿Reiniciar nivel?</h2>
+    <p>Perderás tu tiempo y movimientos</p>
+    <div class="ad-label">PUBLICIDAD</div>
+    <div class="ad-slot" id="ad-restart"></div>
+    <div class="modal-btns">
+      <button class="btn-primary" id="btn-confirm-restart">Sí, reiniciar</button>
+      <button class="btn-secondary" id="btn-cancel-restart">Cancelar</button>
+      <button class="btn-ghost" id="btn-menu-restart">Volver al menú</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-stuck">
+  <div class="modal">
+    <div class="emoji">😵</div>
+    <h2>¡Te atascaste!</h2>
+    <p>Quedan casillas por pintar pero la bola no puede llegar</p>
+    <div class="ad-label">PUBLICIDAD</div>
+    <div class="ad-slot" id="ad-stuck"></div>
+    <div class="modal-btns">
+      <button class="btn-primary" id="btn-restart-stuck">Reiniciar nivel</button>
+      <button class="btn-ghost" id="btn-menu-stuck">Cambiar dificultad</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   BALL SLIDER · SeaKingsGames · v2 (puzzle mechanic)
+   ===================================================== */
+
+/* ---------- AUDIO ---------- */
+const SFX = {
+  ctx:null, enabled: localStorage.getItem('sk-sound') !== '0',
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  tone(f,d=.1,t='sine',v=.15,attack=.005){
+    if(!this.enabled||!this.ctx) return;
+    const now=this.ctx.currentTime, o=this.ctx.createOscillator(), g=this.ctx.createGain();
+    o.type=t; o.frequency.value=f;
+    g.gain.setValueAtTime(0,now);
+    g.gain.linearRampToValueAtTime(v,now+attack);
+    g.gain.exponentialRampToValueAtTime(.0001,now+d);
+    o.connect(g).connect(this.ctx.destination);
+    o.start(now); o.stop(now+d+.02);
+  },
+  paint(p=600){ this.tone(p,.05,'sine',.10); },
+  bump()  { this.tone(180,.12,'sawtooth',.10); this.tone(140,.08,'sawtooth',.08); },
+  thud()  { this.tone(220,.08,'square',.08); },
+  tap()   { this.tone(800,.03,'triangle',.08); },
+  hint()  { this.tone(1320,.08,'triangle',.12); setTimeout(()=>this.tone(1760,.12,'triangle',.12),80); },
+  stuck() { this.tone(330,.18,'sawtooth',.12); setTimeout(()=>this.tone(247,.28,'sawtooth',.12),140); },
+  victory(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>this.tone(f,i===3?.3:.12,'sine',.16),i*100)); },
+  newRec() { [659,784,1047,1319].forEach((f,i)=>setTimeout(()=>this.tone(f,.14,'triangle',.15),i*70)); },
+};
+
+/* ---------- ADS ---------- */
+const ADS = {
+  banner50:  { key:'787e84f3bdee3100779130afe4802abc', width:320, height:50 },
+  medium250: { key:'c2f164720365b5dc18fae25f1c594072', width:300, height:250 },
+};
+function loadAd(el, cfg){
+  if(!el || el.dataset.loaded === '1') return;
+  el.dataset.loaded = '1';
+  const html =
+`<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;background:transparent;overflow:hidden}</style></head><body>
+<script type="text/javascript">var atOptions=${JSON.stringify({key:cfg.key,format:'iframe',height:cfg.height,width:cfg.width,params:{}})};<\/script>
+<script type="text/javascript" src="https://www.highperformanceformat.com/${cfg.key}/invoke.js"><\/script>
+</body></html>`;
+  const ifr = document.createElement('iframe');
+  ifr.srcdoc = html; ifr.width = cfg.width; ifr.height = cfg.height;
+  ifr.scrolling = 'no'; ifr.setAttribute('frameborder','0');
+  ifr.style.cssText = 'border:0;display:block;background:transparent;max-width:100%';
+  el.appendChild(ifr);
+}
+
+/* ---------- DIFICULTAD ---------- */
+const DIFFICULTIES = {
+  facil:        { W:6,  H:8,  moves:8,  maxStep:4, label:'FÁCIL',         hints:3 },
+  medio:        { W:7,  H:10, moves:14, maxStep:5, label:'MEDIO',         hints:2 },
+  dificil:      { W:8,  H:12, moves:20, maxStep:5, label:'DIFÍCIL',       hints:2 },
+  extraDificil: { W:10, H:14, moves:28, maxStep:6, label:'EXTRA DIFÍCIL', hints:1 },
+};
+
+/* ---------- ESTADO ---------- */
+const state = {
+  difficulty:'facil', level:1,
+  W:0, H:0,
+  grid:[],       // 0 = void, 1 = path
+  painted:[],    // 0 = clean (puede pisar), 1 = pintada (sólida)
+  paintTime:[],  // timestamp ms cuando se pintó (para animación)
+  totalCells:0, paintedCells:0,
+  ballX:0, ballY:0, startX:0, startY:0,
+  solution:[], lastDir:null,
+  hints:3, hintsLeft:3,
+  startTime:0, elapsed:0, moves:0,
+  ticking:false, timerId:null,
+  // animación
+  anim:null, // {fromX, fromY, toX, toY, start, dur, dx, dy}
+  particles:[],
+};
+const $ = id => document.getElementById(id);
+const canvas = $('board');
+const ctx = canvas.getContext('2d');
+let tile=40, offX=0, offY=0;
+let rafId = null;
+
+/* ---------- GENERADOR (puzzle, sin cruces, con walls) ---------- */
+const DIRS = [[1,0],[-1,0],[0,1],[0,-1]];
+function genLevel(){
+  const cfg = DIFFICULTIES[state.difficulty];
+  const W = cfg.W, H = cfg.H;
+  state.W = W; state.H = H;
+  const grid = Array(H).fill(0).map(()=>Array(W).fill(0));
+  const walls = new Set();              // celdas que deben permanecer void
+  const k = (x,y) => y*W + x;
+
+  // posición inicial centro/aleatoria
+  let x = 2 + ((Math.random()*(W-4))|0);
+  let y = 2 + ((Math.random()*(H-4))|0);
+  grid[y][x] = 1;
+  const sx=x, sy=y;
+  const solution = [];
+  let lastDir = null;
+  let attempts = 0;
+
+  while(solution.length < cfg.moves && attempts < 600){
+    attempts++;
+    // preferir cambiar de dirección 75% del tiempo
+    let candidates = DIRS.slice();
+    if (lastDir && Math.random() < 0.75) {
+      candidates = DIRS.filter(d => !(d[0]===lastDir[0] && d[1]===lastDir[1]));
+    }
+    // probar cada candidata barajada
+    candidates.sort(()=>Math.random()-0.5);
+    let used = false;
+    for (const d of candidates) {
+      const dx=d[0], dy=d[1];
+      // verificar que se pueda extender al menos 1
+      const tx0 = x+dx, ty0 = y+dy;
+      if (tx0<0||tx0>=W||ty0<0||ty0>=H) continue;
+      if (grid[ty0][tx0]) continue;          // ya hay path (no cruzar)
+      if (walls.has(k(tx0,ty0))) continue;   // celda bloqueada
+
+      // avanzar entre 1 y maxStep
+      let nx=x, ny=y, newSteps=0;
+      const maxNew = 1 + ((Math.random()*cfg.maxStep)|0);
+      while(newSteps < maxNew){
+        const tx = nx+dx, ty = ny+dy;
+        if(tx<0||tx>=W||ty<0||ty>=H) break;
+        if(grid[ty][tx]) break;
+        if(walls.has(k(tx,ty))) break;
+        nx=tx; ny=ty; grid[ty][tx]=1; newSteps++;
+      }
+      if (newSteps === 0) continue;
+      // bloquear la celda inmediatamente después para que sea siempre "obstáculo"
+      const wx = nx+dx, wy = ny+dy;
+      if (wx>=0 && wx<W && wy>=0 && wy<H) walls.add(k(wx,wy));
+      solution.push([dx,dy]);
+      lastDir = d;
+      x = nx; y = ny;
+      used = true;
+      break;
+    }
+    if (!used) break; // no se pudo extender
+  }
+
+  // estadísticas
+  let total = 0;
+  for(let r=0;r<H;r++) for(let c=0;c<W;c++) if(grid[r][c]) total++;
+
+  state.grid = grid;
+  state.painted = grid.map(r=>r.map(()=>0));
+  state.paintTime = grid.map(r=>r.map(()=>0));
+  state.painted[sy][sx] = 1;                  // inicial cuenta como pintada (sólida)
+  state.paintTime[sy][sx] = performance.now();
+  state.totalCells = total;
+  state.paintedCells = 1;
+  state.ballX = sx; state.ballY = sy;
+  state.startX = sx; state.startY = sy;
+  state.solution = solution;
+  state.lastDir = null;
+  state.hints = cfg.hints;
+  state.hintsLeft = cfg.hints;
+  state.moves = 0; state.elapsed = 0; state.startTime = 0; state.ticking = false;
+  state.anim = null; state.particles = [];
+
+  $('hint-count').textContent = state.hintsLeft;
+  $('level-num').textContent = state.level;
+  $('diff-badge').textContent = cfg.label;
+  $('stat-time').textContent = '0:00';
+  $('stat-moves').textContent = '0';
+  updateProgress();
+  $('swipe-hint').style.opacity = '0.7';
+}
+
+function updateProgress(){
+  $('stat-cells').textContent = `${state.paintedCells}/${state.totalCells}`;
+  const pct = state.totalCells ? (state.paintedCells/state.totalCells*100) : 0;
+  $('progress-fill').style.width = pct + '%';
+}
+
+/* ---------- RESIZE + LAYOUT ---------- */
+function resize(){
+  const wrap = canvas.parentElement;
+  const aw = wrap.clientWidth - 12, ah = wrap.clientHeight - 12;
+  const W = state.W, H = state.H;
+  if (aw<=0 || ah<=0 || !W || !H) return;
+  tile = Math.min(Math.floor(aw/W), Math.floor((ah-8)/(H+0.4)));
+  if (tile < 8) tile = 8;
+  const cw = W*tile, ch = H*tile + Math.floor(tile*0.3);
+  canvas.width = cw * devicePixelRatio;
+  canvas.height = ch * devicePixelRatio;
+  canvas.style.width = cw + 'px';
+  canvas.style.height = ch + 'px';
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  offX = 0; offY = Math.floor(tile*0.3);
+}
+
+/* ---------- DRAW ---------- */
+function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
+function easeOutBack(t){ const c=1.7; return 1 + c*Math.pow(t-1,3) + (c-0)*Math.pow(t-1,2); }
+
+function drawTile(x, y, paintedT, now){
+  const px = offX + x*tile, py = offY + y*tile;
+  const topH = Math.floor(tile*0.2);
+
+  // base sin pintar (la celda existe siempre que grid==1)
+  // top
+  ctx.fillStyle = '#e6dcc0';
+  ctx.beginPath();
+  ctx.moveTo(px, py); ctx.lineTo(px+tile, py);
+  ctx.lineTo(px+tile-2, py-topH); ctx.lineTo(px+2, py-topH);
+  ctx.closePath(); ctx.fill();
+  // frente
+  ctx.fillStyle = '#4a5560';
+  ctx.fillRect(px, py, tile, tile);
+
+  // si está pintada, overlay azul animado
+  if (paintedT > 0) {
+    const dt = now - paintedT;
+    const dur = 280;
+    const t = Math.min(1, dt/dur);
+    const e = easeOutBack(t);
+    const grow = Math.min(1, e);
+
+    // efecto de inundación desde el centro
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(px, py, tile, tile);
+    ctx.clip();
+
+    // pintura azul que crece desde el centro como onda
+    const cx = px + tile/2, cy = py + tile/2;
+    const maxR = tile * 0.9;
+    const r = maxR * grow;
+    ctx.fillStyle = '#39a9ee';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+
+    // ribete brillante (anillo) durante la animación
+    if (t < 1) {
+      ctx.strokeStyle = `rgba(255,255,255,${0.7*(1-t)})`;
+      ctx.lineWidth = Math.max(1, tile*0.04);
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+    }
+
+    // si terminó la animación, rellenar entero
+    if (t >= 1) {
+      ctx.fillStyle = '#39a9ee';
+      ctx.fillRect(px, py, tile, tile);
+      // top pintado
+      ctx.fillStyle = '#a8dcf5';
+      ctx.beginPath();
+      ctx.moveTo(px, py); ctx.lineTo(px+tile, py);
+      ctx.lineTo(px+tile-2, py-topH); ctx.lineTo(px+2, py-topH);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // borde sutil
+  ctx.strokeStyle = paintedT > 0 ? 'rgba(0,40,80,.18)' : 'rgba(0,0,0,.22)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px+.5, py+.5, tile-1, tile-1);
+}
+
+function drawBall(now){
+  let bx, by, sqX=1, sqY=1;
+  if (state.anim) {
+    const t = (now - state.anim.start) / state.anim.dur;
+    if (t < 1) {
+      const e = easeOutCubic(t);
+      bx = state.anim.fromX + (state.anim.toX - state.anim.fromX) * e;
+      by = state.anim.fromY + (state.anim.toY - state.anim.fromY) * e;
+      // stretch en dirección de movimiento (más fuerte al inicio)
+      const str = 0.35 * (1 - t);
+      if (Math.abs(state.anim.dx) > 0) { sqX = 1 + str; sqY = 1 - str*0.5; }
+      else                              { sqY = 1 + str; sqX = 1 - str*0.5; }
+      // squash al final (bounce)
+      if (t > 0.82) {
+        const s = (t - 0.82) / 0.18;
+        const pop = Math.sin(s * Math.PI) * 0.18;
+        if (Math.abs(state.anim.dx) > 0) { sqX *= 1 - pop; sqY *= 1 + pop; }
+        else                              { sqX *= 1 + pop; sqY *= 1 - pop; }
+      }
+    } else {
+      bx = state.anim.toX; by = state.anim.toY;
+      state.anim = null;
+      SFX.thud();
+      // check fin de animación: ¿victoria o atasco?
+      setTimeout(checkPostMove, 60);
+    }
+  } else {
+    bx = state.ballX; by = state.ballY;
+  }
+
+  const px = offX + bx*tile + tile/2;
+  const py = offY + by*tile + tile/2 - tile*0.12;
+  const r = tile*0.38;
+
+  // sombra
+  ctx.fillStyle = 'rgba(0,0,0,.22)';
+  ctx.beginPath(); ctx.ellipse(px, py+r*0.6, r*0.9*sqX, r*0.3*sqY, 0, 0, Math.PI*2); ctx.fill();
+
+  // cuerpo con squash/stretch
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.scale(sqX, sqY);
+  const grd = ctx.createRadialGradient(-r*0.3, -r*0.3, r*0.1, 0, 0, r);
+  grd.addColorStop(0, '#fff');
+  grd.addColorStop(0.7, '#ece8da');
+  grd.addColorStop(1, '#a8a298');
+  ctx.fillStyle = grd;
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+  // pequeño highlight
+  ctx.fillStyle = 'rgba(255,255,255,.7)';
+  ctx.beginPath(); ctx.ellipse(-r*0.3, -r*0.35, r*0.18, r*0.10, -0.4, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+function drawParticles(now){
+  state.particles = state.particles.filter(p => {
+    const t = (now - p.start) / p.dur;
+    if (t >= 1) return false;
+    const e = 1 - t;
+    const x = p.x + p.vx * t;
+    const y = p.y + p.vy * t + 0.5 * 200 * t * t; // gravedad
+    ctx.fillStyle = `rgba(255,255,255,${e*0.8})`;
+    ctx.beginPath(); ctx.arc(x, y, p.r * e, 0, Math.PI*2); ctx.fill();
+    return true;
+  });
+}
+
+function draw(){
+  if (!tile || tile<=0 || !state.W) return;
+  const now = performance.now();
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // celdas (orden por filas para que el top no se solape)
+  for (let y=0; y<state.H; y++){
+    for (let x=0; x<state.W; x++){
+      if (state.grid[y][x]) drawTile(x, y, state.painted[y][x] ? state.paintTime[y][x] : 0, now);
+    }
+  }
+  drawParticles(now);
+  drawBall(now);
+}
+
+/* GAME LOOP */
+function loop(){
+  draw();
+  rafId = requestAnimationFrame(loop);
+}
+function startLoop(){ if (!rafId) rafId = requestAnimationFrame(loop); }
+function stopLoop() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+
+/* ---------- MOVIMIENTO ---------- */
+function emitParticles(cx, cy){
+  // pequeños splashes blancos al pintar una celda
+  for (let i=0;i<4;i++){
+    const a = Math.random()*Math.PI*2;
+    const sp = 40 + Math.random()*60;
+    state.particles.push({
+      x: cx, y: cy,
+      vx: Math.cos(a)*sp, vy: -Math.abs(Math.sin(a)*sp) - 30,
+      r: 2 + Math.random()*2,
+      start: performance.now(),
+      dur: 400 + Math.random()*200,
+    });
+  }
+}
+
+function slide(dx, dy){
+  if (state.anim) return; // no mover durante animación
+  let nx = state.ballX, ny = state.ballY;
+  const newlyPainted = [];
+  while (true) {
+    const tx = nx+dx, ty = ny+dy;
+    if (tx<0||tx>=state.W||ty<0||ty>=state.H) break;
+    if (!state.grid[ty][tx]) break;           // void
+    if (state.painted[ty][tx]) break;         // ¡ya pintada = sólida!
+    nx=tx; ny=ty;
+    state.painted[ty][tx] = 1;
+    newlyPainted.push([tx,ty]);
+  }
+  if (newlyPainted.length === 0) {
+    SFX.bump();
+    // animación de "rebote" sin moverse: pequeña shake
+    state.anim = {
+      fromX: state.ballX, fromY: state.ballY,
+      toX: state.ballX, toY: state.ballY,
+      start: performance.now(), dur: 150, dx, dy,
+    };
+    // sólo squash visual en su lugar
+    return;
+  }
+
+  // arrancar timer
+  if (!state.ticking){
+    state.ticking = true;
+    state.startTime = Date.now();
+    startTimer();
+    $('swipe-hint').style.opacity = '0';
+  }
+  state.moves++;
+  state.lastDir = [dx,dy];
+  $('stat-moves').textContent = state.moves;
+
+  // pintar timeline: cada celda con su tiempo de pintura (cascada)
+  const now = performance.now();
+  const dist = newlyPainted.length;
+  const dur = Math.min(450, 110 + dist*55);
+  newlyPainted.forEach(([px,py], i) => {
+    const delay = (i / Math.max(1, dist-1 || 1)) * dur * 0.7;
+    state.paintTime[py][px] = now + delay;
+    setTimeout(() => {
+      SFX.paint(500 + Math.min(i*40, 400));
+      const cx = offX + px*tile + tile/2;
+      const cy = offY + py*tile + tile/2;
+      emitParticles(cx, cy);
+    }, delay);
+  });
+  state.paintedCells += newlyPainted.length;
+  updateProgress();
+
+  state.anim = {
+    fromX: state.ballX, fromY: state.ballY,
+    toX: nx, toY: ny,
+    start: now, dur, dx, dy,
+  };
+  state.ballX = nx; state.ballY = ny;
+}
+
+function checkPostMove(){
+  if (state.paintedCells >= state.totalCells) {
+    setTimeout(onWin, 200);
+    return;
+  }
+  // ¿la bola puede moverse en alguna dirección?
+  let canMove = false;
+  for (const [dx,dy] of DIRS) {
+    const tx = state.ballX+dx, ty = state.ballY+dy;
+    if (tx<0||tx>=state.W||ty<0||ty>=state.H) continue;
+    if (!state.grid[ty][tx]) continue;
+    if (state.painted[ty][tx]) continue;
+    canMove = true; break;
+  }
+  if (!canMove) setTimeout(onStuck, 300);
+}
+
+/* ---------- INPUT ---------- */
+let touchStart=null;
+canvas.addEventListener('touchstart', e => {
+  SFX.init();
+  if(e.touches.length===1){ touchStart = {x:e.touches[0].clientX, y:e.touches[0].clientY}; }
+}, {passive:true});
+canvas.addEventListener('touchmove', e => {
+  if(!touchStart) return;
+  const dx = e.touches[0].clientX - touchStart.x;
+  const dy = e.touches[0].clientY - touchStart.y;
+  if(Math.abs(dx) > 22 || Math.abs(dy) > 22){
+    if(Math.abs(dx) > Math.abs(dy)){ slide(dx>0?1:-1, 0); } else { slide(0, dy>0?1:-1); }
+    touchStart = null;
+  }
+}, {passive:true});
+canvas.addEventListener('touchend', () => { touchStart = null; }, {passive:true});
+
+let mouseStart=null;
+canvas.addEventListener('mousedown', e => { SFX.init(); mouseStart={x:e.clientX,y:e.clientY}; });
+canvas.addEventListener('mousemove', e => {
+  if(!mouseStart) return;
+  const dx = e.clientX - mouseStart.x, dy = e.clientY - mouseStart.y;
+  if(Math.abs(dx) > 30 || Math.abs(dy) > 30){
+    if(Math.abs(dx) > Math.abs(dy)) slide(dx>0?1:-1, 0);
+    else slide(0, dy>0?1:-1);
+    mouseStart = null;
+  }
+});
+canvas.addEventListener('mouseup', () => mouseStart=null);
+canvas.addEventListener('mouseleave', () => mouseStart=null);
+
+document.addEventListener('keydown', e => {
+  if(!$('game').classList.contains('active')) return;
+  if(e.key==='ArrowRight') { slide(1,0); e.preventDefault(); }
+  else if(e.key==='ArrowLeft')  { slide(-1,0); e.preventDefault(); }
+  else if(e.key==='ArrowDown')  { slide(0,1); e.preventDefault(); }
+  else if(e.key==='ArrowUp')    { slide(0,-1); e.preventDefault(); }
+});
+
+/* ---------- TIMER ---------- */
+function startTimer(){
+  if(state.timerId) clearInterval(state.timerId);
+  state.timerId = setInterval(() => {
+    if(!state.ticking) return;
+    state.elapsed = (Date.now() - state.startTime) / 1000;
+    $('stat-time').textContent = fmtTime(state.elapsed);
+  }, 250);
+}
+function stopTimer(){ if(state.timerId){clearInterval(state.timerId);state.timerId=null;} state.ticking=false; }
+function fmtTime(s){ const m=Math.floor(s/60), sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
+
+/* ---------- PISTA ---------- */
+function onHint(){
+  if(state.hintsLeft <= 0){ SFX.bump(); return; }
+  // si no está en posición inicial, ofrecer reiniciar
+  if (state.ballX !== state.startX || state.ballY !== state.startY) {
+    if (!confirm('La pista solo funciona desde el inicio. ¿Reiniciar el nivel?')) return;
+    // resetear estado de juego
+    state.painted = state.grid.map(r=>r.map(()=>0));
+    state.paintTime = state.grid.map(r=>r.map(()=>0));
+    state.painted[state.startY][state.startX]=1;
+    state.paintTime[state.startY][state.startX]=performance.now();
+    state.ballX = state.startX; state.ballY = state.startY;
+    state.paintedCells = 1;
+    state.moves = 0; state.elapsed = 0; state.startTime = 0;
+    stopTimer();
+    $('stat-time').textContent='0:00'; $('stat-moves').textContent='0';
+    $('swipe-hint').style.opacity = '0.7';
+    updateProgress();
+  }
+  if(state.solution.length === 0) return;
+  state.hintsLeft--;
+  $('hint-count').textContent = state.hintsLeft;
+  SFX.hint();
+  showHintArrow(state.solution[0]);
+}
+function showHintArrow([dx,dy]){
+  const t0 = performance.now();
+  const dur = 1400;
+  function tick(t){
+    const elapsed = t - t0;
+    if (elapsed > dur) return;
+    const p = elapsed / dur;
+    const alpha = Math.sin(p*Math.PI*3) * 0.7 + 0.3;
+    const bx = offX + state.ballX*tile + tile/2;
+    const by = offY + state.ballY*tile + tile/2 - tile*0.12;
+    const len = tile * 1.3;
+    const ex = bx + dx*len, ey = by + dy*len;
+    ctx.save();
+    ctx.strokeStyle = `rgba(255,200,58,${alpha})`;
+    ctx.lineWidth = tile*0.18;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = 'rgba(255,200,58,.8)';
+    ctx.shadowBlur = 14;
+    ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(ex,ey); ctx.stroke();
+    const ang = Math.atan2(dy,dx), pl = tile*0.42;
+    ctx.beginPath();
+    ctx.moveTo(ex,ey);
+    ctx.lineTo(ex - Math.cos(ang-Math.PI/6)*pl, ey - Math.sin(ang-Math.PI/6)*pl);
+    ctx.moveTo(ex,ey);
+    ctx.lineTo(ex - Math.cos(ang+Math.PI/6)*pl, ey - Math.sin(ang+Math.PI/6)*pl);
+    ctx.stroke();
+    ctx.restore();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ---------- VICTORIA / ATASCO ---------- */
+function onWin(){
+  stopTimer();
+  SFX.victory();
+  // celebración: emitir partículas en todas las celdas
+  for (let y=0;y<state.H;y++) for(let x=0;x<state.W;x++){
+    if (state.grid[y][x]) {
+      const cx = offX + x*tile + tile/2;
+      const cy = offY + y*tile + tile/2;
+      for (let i=0;i<2;i++) emitParticles(cx, cy);
+    }
+  }
+  const t = state.elapsed, m = state.moves, diff = state.difficulty;
+  const key = `sk-bs-rec-${diff}`;
+  let rec = null;
+  try{ rec = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){}
+  const isNewRec = !rec || t < rec.time;
+  if (isNewRec) {
+    try{ localStorage.setItem(key, JSON.stringify({time:t, moves:m, level:state.level, date:Date.now()})); }catch(e){}
+    setTimeout(()=>SFX.newRec(), 600);
+  }
+  $('win-level').textContent = state.level;
+  $('win-time').textContent = fmtTime(t);
+  $('win-moves').textContent = m;
+  $('new-record-tag').style.display = isNewRec ? 'block' : 'none';
+  openModal('modal-win','ad-win',ADS.medium250);
+}
+function onStuck(){
+  SFX.stuck();
+  openModal('modal-stuck','ad-stuck',ADS.medium250);
+}
+
+/* ---------- COMPARTIR / GUARDAR ---------- */
+function genAchievementCanvas(){
+  const c = document.createElement('canvas');
+  c.width = 1080; c.height = 1080;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0,0,0,1080);
+  g.addColorStop(0,'#fef6e0'); g.addColorStop(1,'#fdc880');
+  x.fillStyle = g; x.fillRect(0,0,1080,1080);
+  x.strokeStyle = '#ffc83a'; x.lineWidth = 18; x.strokeRect(40,40,1000,1000);
+  x.font = '180px sans-serif'; x.textAlign = 'center';
+  x.fillText('🏆', 540, 240);
+  x.fillStyle = '#8b4f6b'; x.font = 'bold 56px sans-serif';
+  x.fillText('¡LOGRO DESBLOQUEADO!', 540, 330);
+  x.fillStyle = '#3a2400'; x.font = 'bold 90px sans-serif';
+  x.fillText('Ball Slider', 540, 440);
+  x.fillStyle = '#b878a0'; x.font = 'bold 42px sans-serif';
+  x.fillText(`${DIFFICULTIES[state.difficulty].label} · Nivel ${state.level}`, 540, 510);
+  x.fillStyle = '#ffc83a';
+  roundRect(x, 90, 600, 900, 280, 30); x.fill();
+  x.fillStyle = '#3a2400'; x.font = 'bold 130px sans-serif';
+  x.fillText(fmtTime(state.elapsed), 320, 740);
+  x.fillText(state.moves, 760, 740);
+  x.fillStyle = 'rgba(58,36,0,.7)'; x.font = 'bold 30px sans-serif';
+  x.fillText('TIEMPO', 320, 790); x.fillText('MOVIMIENTOS', 760, 790);
+  x.fillStyle = '#8b4f6b'; x.font = 'bold 48px sans-serif';
+  x.fillText('SeaKingsGames', 540, 990);
+  return c;
+}
+function roundRect(c, x, y, w, h, r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.arcTo(x+w,y,x+w,y+r,r);
+  c.lineTo(x+w,y+h-r); c.arcTo(x+w,y+h,x+w-r,y+h,r);
+  c.lineTo(x+r,y+h); c.arcTo(x,y+h,x,y+h-r,r);
+  c.lineTo(x,y+r); c.arcTo(x,y,x+r,y,r);
+  c.closePath();
+}
+async function shareAchievement(){
+  const c = genAchievementCanvas();
+  const text = `🏆 Ball Slider · ${DIFFICULTIES[state.difficulty].label}\n⏱️ ${fmtTime(state.elapsed)} · 🎯 ${state.moves} movimientos\nJuega: SeaKingsGames`;
+  c.toBlob(async (blob) => {
+    const file = new File([blob], 'logro.png', {type:'image/png'});
+    try{
+      if(navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], text});
+      else if(navigator.share) await navigator.share({text});
+      else {
+        downloadCanvas(c);
+        if(navigator.clipboard) await navigator.clipboard.writeText(text);
+        alert('Imagen descargada y texto copiado');
+      }
+    }catch(e){}
+  }, 'image/png');
+}
+function saveAchievement(){ downloadCanvas(genAchievementCanvas()); }
+function downloadCanvas(c){
+  c.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `logro-ball-slider-${Date.now()}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }, 'image/png');
+}
+
+/* ---------- MODALES ---------- */
+function openModal(id, adId, adCfg){ $(id).classList.add('active'); if(adId) loadAd($(adId), adCfg); }
+function closeModal(id){ $(id).classList.remove('active'); }
+
+/* ---------- MENU ---------- */
+function buildMenu(){
+  const list = $('diff-list');
+  list.innerHTML = '';
+  Object.entries(DIFFICULTIES).forEach(([k,cfg]) => {
+    let rec = null;
+    try{ rec = JSON.parse(localStorage.getItem(`sk-bs-rec-${k}`) || 'null'); }catch(e){}
+    const btn = document.createElement('button');
+    btn.className = 'diff-btn'; btn.dataset.d = k;
+    const label = cfg.label.charAt(0)+cfg.label.slice(1).toLowerCase().replace('difícil','Difícil').replace('extra ','Extra ');
+    btn.innerHTML = `
+      <div>
+        <div>${label}</div>
+        ${rec ? `<div class="record-line">🏆 ${fmtTime(rec.time)} · ${rec.moves} mov</div>` : ''}
+      </div>
+      <span class="tag">${cfg.W}×${cfg.H}</span>`;
+    btn.onclick = () => {
+      SFX.init(); SFX.tap();
+      state.difficulty = k; state.level = 1;
+      startGame();
+    };
+    list.appendChild(btn);
+  });
+}
+function startGame(){
+  genLevel();
+  showScreen('game');
+  requestAnimationFrame(() => requestAnimationFrame(() => { resize(); startLoop(); }));
+}
+
+/* ---------- BOTONES ---------- */
+$('btn-back').onclick = () => { SFX.tap(); stopTimer(); stopLoop(); showScreen('menu'); buildMenu(); };
+$('btn-restart').onclick = () => { SFX.tap(); openModal('modal-restart','ad-restart',ADS.medium250); };
+$('btn-sound').onclick = () => {
+  SFX.init();
+  SFX.enabled = !SFX.enabled;
+  localStorage.setItem('sk-sound', SFX.enabled ? '1' : '0');
+  $('btn-sound').textContent = SFX.enabled ? '🔊' : '🔇';
+  if(SFX.enabled) SFX.tap();
+};
+$('btn-sound').textContent = SFX.enabled ? '🔊' : '🔇';
+$('btn-hint').onclick = onHint;
+
+$('btn-next').onclick = () => { closeModal('modal-win'); state.level++; startGame(); SFX.tap(); };
+$('btn-share').onclick = () => { SFX.tap(); shareAchievement(); };
+$('btn-save').onclick = () => { SFX.tap(); saveAchievement(); };
+$('btn-menu-win').onclick = () => { closeModal('modal-win'); stopLoop(); showScreen('menu'); buildMenu(); };
+
+$('btn-confirm-restart').onclick = () => { closeModal('modal-restart'); genLevel(); requestAnimationFrame(resize); SFX.tap(); };
+$('btn-cancel-restart').onclick  = () => { closeModal('modal-restart'); SFX.tap(); };
+$('btn-menu-restart').onclick    = () => { closeModal('modal-restart'); stopTimer(); stopLoop(); showScreen('menu'); buildMenu(); };
+
+$('btn-restart-stuck').onclick = () => { closeModal('modal-stuck'); genLevel(); requestAnimationFrame(resize); SFX.tap(); };
+$('btn-menu-stuck').onclick    = () => { closeModal('modal-stuck'); stopTimer(); stopLoop(); showScreen('menu'); buildMenu(); };
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(name).classList.add('active');
+}
+
+window.addEventListener('resize', () => { if($('game').classList.contains('active')) resize(); });
+
+/* ---------- INIT ---------- */
+buildMenu();
+window.addEventListener('load', () => { loadAd($('ad-bottom-menu'), ADS.banner50); });
+</script>
+</body>
+</html>
