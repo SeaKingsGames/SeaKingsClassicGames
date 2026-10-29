@@ -984,9 +984,12 @@ function connectWs(){
 }
 function send(m){ if (ws && ws.readyState === 1) ws.send(JSON.stringify(m)); }
 let statusMsg = '';
+const RECIBIDO = { chat: 0, gift: 0, like: 0, last: '', tiktok: null };
 function handle(m){
+  if (['chat','gift','like'].includes(m.type)) { RECIBIDO[m.type]++; if (m.type === 'chat') RECIBIDO.last = `${(m.user && m.user.name) || '?'}: ${String(m.text || '').slice(0, 40)}`; setStatus(); }
   switch (m.type) {
     case 'status': liveState = m.state; statusMsg = m.message || ''; setStatus(); break;
+    case 'stats':  RECIBIDO.tiktok = m.total; setStatus(); break;
     case 'chat':   onChat(m.user || {}, m.text); break;
     case 'gift':   onGift(m.user || {}, m.coins, m.count, m.giftName); break;
     case 'like':   onLike(m.user || {}, m.count); break;
@@ -1003,6 +1006,13 @@ function setStatus(){
   if (wsOk && map[liveState]) lines.push(map[liveState]);
   st.innerHTML = lines.join('<br>');
   if (statusMsg && wsOk) { const s = document.createElement('div'); s.textContent = statusMsg; st.appendChild(s); }
+  if (wsOk && liveState === 'connected') {
+    const r = document.createElement('div'); r.style.marginTop = '6px';
+    r.textContent = `📥 Recibidos: ${RECIBIDO.chat} comentarios · ${RECIBIDO.gift} regalos · ${RECIBIDO.like} likes`;
+    st.appendChild(r);
+    if (RECIBIDO.last) { const l = document.createElement('div'); l.textContent = `💬 Último: ${RECIBIDO.last}`; st.appendChild(l); }
+    if (RECIBIDO.tiktok === 0) { const w = document.createElement('div'); w.style.color = '#ff5e6c'; w.textContent = '⚠️ TikTok no está mandando datos (mira la ventana negra)'; st.appendChild(w); }
+  }
 }
 
 /* ---------- PANEL ---------- */

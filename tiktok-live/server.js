@@ -57,6 +57,7 @@ const wss = new WebSocketServer({
 });
 const enviarATodos = obj => { const s = JSON.stringify(obj); wss.clients.forEach(c => c.readyState === 1 && c.send(s)); };
 
+let resumen = null;
 let conexion = null, usuario = USUARIO_INICIAL, estado = 'disconnected', mensaje = '', reintento = null;
 function ponerEstado(nuevo, msg) {
   estado = nuevo; mensaje = msg || '';
@@ -104,10 +105,18 @@ async function iniciar() {
   conexion = c;
   const regalo = crearContadorDeRegalos();
   const quien = (u, extra) => datosUsuario(u, extra, usuario);
+  const cuenta = { chat: 0, like: 0, gift: 0, datos: 0, total: 0, tipos: new Map() };
 
-  c.on(WebcastEvent.CHAT, d => enviarATodos({ type: 'chat', user: quien(d.user, d), text: d.comment }));
-  c.on(WebcastEvent.GIFT, d => { const g = regalo(d, usuario); if (g) { enviarATodos(g); console.log(`🎁 ${g.user.name}: ${g.giftName} ×${g.count} (${g.coins} c/u)`); } });
-  c.on(WebcastEvent.LIKE, d => enviarATodos({ type: 'like', user: quien(d.user), count: d.likeCount, total: d.totalLikeCount }));
+  // Diagnóstico: cuenta todo lo que manda TikTok, para saber si está llegando algo
+  c.on('decodedData', tipo => { cuenta.datos++; cuenta.total++; cuenta.tipos.set(tipo, (cuenta.tipos.get(tipo) || 0) + 1); });
+  c.on(WebcastEvent.CHAT, d => {
+    cuenta.chat++; cuenta.total++;
+    const u = quien(d.user, d);
+    console.log(`💬 ${u.name}: ${String(d.comment || '').slice(0, 60)}`);
+    enviarATodos({ type: 'chat', user: u, text: d.comment });
+  });
+  c.on(WebcastEvent.GIFT, d => { const g = regalo(d, usuario); if (g) { cuenta.gift++; cuenta.total++; enviarATodos(g); console.log(`🎁 ${g.user.name}: ${g.giftName} ×${g.count} (${g.coins} c/u)`); } });
+  c.on(WebcastEvent.LIKE, d => { cuenta.like++; cuenta.total++; enviarATodos({ type: 'like', user: quien(d.user), count: d.likeCount, total: d.totalLikeCount }); });
   c.on(WebcastEvent.FOLLOW, d => enviarATodos({ type: 'follow', user: quien(d.user) }));
   c.on(WebcastEvent.SHARE, d => enviarATodos({ type: 'share', user: quien(d.user) }));
   c.on(WebcastEvent.STREAM_END, () => { if (conexion !== c) return; ponerEstado('offline', 'Terminó el live. Reviso cada 30 s por si vuelves.'); reintentar(30000); });
@@ -118,6 +127,17 @@ async function iniciar() {
     const st = await c.connect();
     if (conexion !== c) return;
     ponerEstado('connected', `Conectado al live de @${usuario}${st?.roomId ? ` (sala ${st.roomId})` : ''}`);
+    console.log('   Comenta una letra desde otra cuenta: debe aparecer aquí como 💬');
+    // resumen cada 30 s
+    clearInterval(resumen);
+    resumen = setInterval(() => {
+      if (conexion !== c) { clearInterval(resumen); return; }
+      const tipos = [...cuenta.tipos.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `${k.replace(/^Webcast|Message$/g, '')}×${v}`).join(', ');
+      console.log(`📊 Últimos 30 s: ${cuenta.chat} comentarios, ${cuenta.like} likes, ${cuenta.gift} regalos · ${cuenta.datos} mensajes de TikTok${tipos ? ` (${tipos})` : ''}`);
+      if (!cuenta.total && !DEMO) console.log('⚠️  TikTok no le está mandando nada a este programa. Cierra esta ventana, vuelve a abrir iniciar.bat y, si sigue igual, avísale a Claude.');
+      enviarATodos({ type: 'stats', chat: cuenta.chat, like: cuenta.like, gift: cuenta.gift, datos: cuenta.datos, total: cuenta.total });
+      cuenta.chat = cuenta.like = cuenta.gift = cuenta.datos = cuenta.total = 0; cuenta.tipos.clear();
+    }, 30000);
   } catch (err) {
     if (conexion !== c) return;
     const txt = `${err?.name || ''} ${err?.message || err}`;
