@@ -1,7 +1,7 @@
 {
   "name": "SeaKingsGames",
   "short_name": "SeaKings",
-  "description": "Arcada de juegos casuales: Tuercas Locas, Verdugo, Memoria, Snake y más.",
+  "description": "Arcada de juegos clásicos en español: Ahorcado, Buscaminas, 2048, Sopa de letras, Conecta 4, Gato, Tuercas Locas y más.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -9,7 +9,10 @@
   "background_color": "#0a1429",
   "theme_color": "#0a1429",
   "lang": "es",
-  "categories": ["games", "entertainment"],
+  "categories": [
+    "games",
+    "entertainment"
+  ],
   "icons": [
     {
       "src": "icon-192.png",
@@ -38,46 +41,92 @@
   ],
   "shortcuts": [
     {
+      "name": "Ahorcado",
+      "short_name": "Ahorcado",
+      "url": "./ahorcado.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Buscaminas",
+      "short_name": "Buscaminas",
+      "url": "./buscaminas.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "2048",
+      "short_name": "2048",
+      "url": "./2048.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Sopa de letras",
+      "short_name": "Sopa",
+      "url": "./sopa-letras.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Conecta 4",
+      "short_name": "Conecta 4",
+      "url": "./conecta4.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Gato",
+      "short_name": "Gato",
+      "url": "./gato.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
       "name": "Tuercas Locas",
       "short_name": "Tuercas",
       "url": "./tuercas-locas.html",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Verdugo",
-      "short_name": "Verdugo",
-      "url": "./verdugo.html",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Memoria",
       "short_name": "Memoria",
       "url": "./memoria.html",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Snake",
-      "short_name": "Snake",
-      "url": "./snake.html",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Numpuz",
-      "short_name": "Numpuz",
-      "url": "./numpuz.html",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Tower",
-      "short_name": "Tower",
-      "url": "./tower.html",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Smash Brick",
-      "short_name": "Smash",
-      "url": "./smash-brick.html",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

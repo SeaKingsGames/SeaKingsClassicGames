@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SeaKings">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="Arcada de juegos casuales en español: Tuercas Locas, Verdugo, Memoria, Snake y más.">
+<meta name="description" content="Arcada de juegos clásicos en español: Ahorcado, Buscaminas, 2048, Sopa de letras, Conecta 4, Gato, Tuercas Locas, Snake y más. Gratis y sin internet.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -121,6 +121,12 @@
   .art-numpuz {background:radial-gradient(circle at 50% 40%,#5e9ed8 0%,#1a2c3a 70%)}
   .art-tower  {background:linear-gradient(180deg,#2a4068 0%,#3a3a5a 50%,#0a0a2a 100%)}
   .art-smash  {background:linear-gradient(180deg,#e85a6b 0%,#ffc83a 50%,#5fa8e8 100%)}
+  .art-minas  {background:repeating-conic-gradient(#a8d652 0 25%,#9dcc48 0 50%) 0 0/40px 40px}
+  .art-2048   {background:radial-gradient(circle at 50% 40%,#ffb84d 0%,#3a2d5e 75%)}
+  .art-sopa   {background:radial-gradient(circle at 50% 40%,#38e2d0 0%,#123247 72%)}
+  .art-c4     {background:radial-gradient(circle at 50% 40%,#2563eb 0%,#0e1f45 72%)}
+  .art-gato   {background:radial-gradient(circle at 50% 40%,#ff7a8a 0%,#271a40 72%)}
+  .pill.new{background:rgba(255,107,107,.2);color:var(--coral)}
 
   /* PWA install prompt */
   .install-prompt{
@@ -320,9 +326,39 @@ const GAMES = [
   },
   {
     title: 'Ahorcado',
-    desc:  'El ahorcado definitivo. 15 temas, más de 600 palabras, 4 dificultades, funciona sin internet.',
+    desc:  'El ahorcado definitivo. 25 temas, casi 1,500 palabras con pista, 4 dificultades y modo aleatorio.',
     art:   '🪢', artClass: 'art-verdugo',
-    href:  'ahorcado.html', badge: 'JUGAR',
+    href:  'ahorcado.html', badge: 'MEJORADO', isNew: true,
+  },
+  {
+    title: 'Buscaminas',
+    desc:  'El clásico de las minas. Banderas con toque largo, 4 dificultades y el primer toque siempre es seguro.',
+    art:   '💣', artClass: 'art-minas',
+    href:  'buscaminas.html', badge: 'NUEVO', isNew: true,
+  },
+  {
+    title: '2048',
+    desc:  'Desliza y une números iguales hasta llegar a 2048. Tableros de 3×3 a 6×6 y deshacer.',
+    art:   '🔢', artClass: 'art-2048',
+    href:  '2048.html', badge: 'NUEVO', isNew: true,
+  },
+  {
+    title: 'Sopa de letras',
+    desc:  'Encuentra las palabras escondidas. 25 temas y modo "solo pistas" para retarte de verdad.',
+    art:   '🔍', artClass: 'art-sopa',
+    href:  'sopa-letras.html', badge: 'NUEVO', isNew: true,
+  },
+  {
+    title: 'Conecta 4',
+    desc:  'Junta 4 fichas en línea. Contra la compu en 3 niveles o con un amigo en el mismo celular.',
+    art:   '🔴', artClass: 'art-c4',
+    href:  'conecta4.html', badge: 'NUEVO', isNew: true,
+  },
+  {
+    title: 'Gato',
+    desc:  'El tres en raya de toda la vida. ¿Le puedes sacar un empate a la compu imposible?',
+    art:   '❌', artClass: 'art-gato',
+    href:  'gato.html', badge: 'NUEVO', isNew: true,
   },
   {
     title: 'Memoria',
@@ -368,7 +404,7 @@ GAMES.forEach(g => {
       <h3>${g.title}</h3>
       <p>${g.desc}</p>
       <div class="card-meta">
-        <span class="pill ${g.soon ? 'soon' : ''}">${g.badge}</span>
+        <span class="pill ${g.soon ? 'soon' : ''}${g.isNew ? ' new' : ''}">${g.badge}</span>
         ${g.soon ? '' : '<div class="play">▶</div>'}
       </div>
     </div>`;
