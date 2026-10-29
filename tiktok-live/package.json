@@ -1,0 +1,18 @@
+{
+  "name": "seakings-puente-tiktok",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Conecta el chat y los regalos de tu TikTok Live con el Ahorcado EN VIVO de SeaKingsGames",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "tiktok-live-connector": "^2.5.0",
+    "ws": "^8.18.0"
+  }
+}
