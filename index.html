@@ -14,10 +14,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SeaKings">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="Arcada de juegos clásicos en español: Ahorcado con palabra del día, Buscaminas, 2048, Sopa de letras, Conecta 4, Gato, Tuercas Locas, Snake y más. Gratis y sin internet.">
+<meta name="description" content="Arcada de juegos clásicos en español: Lotería, Dominó, Solitario, Sudoku, Ahorcado con palabra del día, Batalla Naval, Serpientes y Escaleras, Buscaminas, 2048 y más. Gratis y sin internet.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="SeaKingsGames · Juegos clásicos gratis">
-<meta property="og:description" content="Ahorcado con palabra del día, Buscaminas, 2048, Sopa de letras, Conecta 4 y más. Gratis, en español y sin internet.">
+<meta property="og:description" content="Lotería, Dominó, Solitario, Sudoku, Ahorcado con palabra del día, Batalla Naval y más. Gratis, en español y sin internet.">
 <meta property="og:image" content="https://seakingsgames.github.io/SeaKingsClassicGames/og-arcada.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -133,6 +133,20 @@
   .art-sopa   {background:radial-gradient(circle at 50% 40%,#38e2d0 0%,#123247 72%)}
   .art-c4     {background:radial-gradient(circle at 50% 40%,#2563eb 0%,#0e1f45 72%)}
   .art-gato   {background:radial-gradient(circle at 50% 40%,#ff7a8a 0%,#271a40 72%)}
+  .art-loteria{background:radial-gradient(circle at 50% 40%,#ff8a5c 0%,#5a1430 72%)}
+  .art-sol    {background:radial-gradient(circle at 50% 40%,#40c057 0%,#0a3a1f 72%)}
+  .art-sudoku {background:radial-gradient(circle at 50% 40%,#748ffc 0%,#1b2440 72%)}
+  .art-domino {background:radial-gradient(circle at 50% 40%,#3aa572 0%,#14432f 72%)}
+  .dmn{display:inline-flex;flex-direction:column;gap:5px;padding:6px;background:#fffdf5;border-radius:9px;box-shadow:0 4px 10px rgba(0,0,0,.4);transform:rotate(-12deg)}
+  .dmn b{display:grid;grid-template-columns:repeat(3,7px);grid-template-rows:repeat(3,7px);gap:3px}
+  .dmn b + b{border-top:2px solid #c9c2ad;padding-top:5px}
+  .dmn i{border-radius:50%}
+  .dmn i.on{background:#1d1d2b}
+  .recent .dmn{transform:rotate(-12deg) scale(.32);margin:-26px -12px;vertical-align:middle}
+  .art-ajolote{background:linear-gradient(180deg,#37b6d6 0%,#0b4f6c 60%,#062b3d 100%)}
+  .art-naval  {background:radial-gradient(circle at 50% 40%,#3b82c4 0%,#0d2a4a 72%)}
+  .art-serp   {background:radial-gradient(circle at 50% 40%,#69db7c 0%,#1e3a2a 72%)}
+  .art-oca    {background:radial-gradient(circle at 50% 40%,#e64980 0%,#5a2a4a 72%)}
   .pill.new{background:rgba(255,107,107,.2);color:var(--coral)}
 
   /* ---------- PALABRA DEL DÍA ---------- */
@@ -385,15 +399,41 @@ const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
 
 /* ---------- CATÁLOGO DE JUEGOS ---------- */
 const FILTERS = [
-  ['todos', '✨ Todos'], ['palabras', '🔤 Palabras'], ['puzzle', '🧩 Puzzles'], ['arcade', '🕹️ Arcade'], ['duelo', '👥 2 jugadores'],
+  ['todos', '✨ Todos'], ['palabras', '🔤 Palabras'], ['puzzle', '🧩 Puzzles'], ['arcade', '🕹️ Arcade'], ['mesa', '🎲 De mesa y cartas'], ['duelo', '👥 2 jugadores'],
 ];
+const PIPS = { 1:[4], 2:[0, 8], 3:[0, 4, 8], 4:[0, 2, 6, 8], 5:[0, 2, 4, 6, 8], 6:[0, 2, 3, 5, 6, 8] };
+const dominoArt = (a, b) => `<span class="dmn">${[a, b].map(n => `<b>${[...Array(9).keys()].map(k => `<i class="${PIPS[n].includes(k) ? 'on' : ''}"></i>`).join('')}</b>`).join('')}</span>`;
 const GAMES = [
   { id:'tuercas', title:'Tuercas Locas', desc:'Ordena las piezas hexagonales en sus tornillos. 4 dificultades, niveles infinitos.',
     art:'🔩', artClass:'art-tuercas', href:'tuercas-locas.html', badge:'JUGAR', feature:true, tags:['puzzle'],
     rec: () => { const n = countOf('sk-tl-rec-'); return n ? `🏆 ${plural(n, 'récord', 'récords')}` : ''; } },
   { id:'ahorcado', title:'Ahorcado', desc:'Palabra del día, reta a tus amigos con un link, contrarreloj y 34 temas con casi 2,300 palabras con pista.',
-    art:'🪢', artClass:'art-verdugo', href:'ahorcado.html', badge:'NUEVO', isNew:true, tags:['palabras', 'duelo'],
+    art:'🪢', artClass:'art-verdugo', href:'ahorcado.html', badge:'POPULAR', tags:['palabras', 'duelo'],
     rec: () => { const a = lsJson('sk-ah-album', {}); const n = Object.values(a).reduce((s, l) => s + (l.length || 0), 0); return n ? `📚 ${plural(n, 'palabra descubierta', 'palabras descubiertas')}` : ''; } },
+  { id:'loteria', title:'Lotería', desc:'Baraja propia de 54 cartas con versos nuevos. El gritón canta las cartas y compites contra 3 rivales.',
+    art:'🎴', artClass:'art-loteria', href:'loteria.html', badge:'NUEVO', isNew:true, tags:['mesa'],
+    rec: () => { const n = sumOf('sk-lot-wins-'); return n ? `🎉 ${plural(n, 'lotería gritada', 'loterías gritadas')}` : ''; } },
+  { id:'solitario', title:'Solitario', desc:'El Klondike de siempre: robar 1 o robar 3, deshacer, pistas y terminar automático.',
+    art:'🃏', artClass:'art-sol', href:'solitario.html', badge:'NUEVO', isNew:true, tags:['mesa', 'puzzle'],
+    rec: () => { const n = sumOf('sk-sol-wins-'); return n ? `🏆 ${plural(n, 'partida resuelta', 'partidas resueltas')}` : ''; } },
+  { id:'domino', title:'Dominó', desc:'En parejas con la compu, mano a mano con pozo o todos contra todos, a 100 puntos.',
+    art: dominoArt(6, 3), artClass:'art-domino', href:'domino.html', badge:'NUEVO', isNew:true, tags:['mesa'],
+    rec: () => { const n = sumOf('sk-domino-wins-'); return n ? `🏆 ${plural(n, 'partida ganada', 'partidas ganadas')}` : ''; } },
+  { id:'sudoku', title:'Sudoku', desc:'4 dificultades, notas, pistas y deshacer. Cada tablero tiene una sola solución.',
+    art:'🔢', artClass:'art-sudoku', href:'sudoku.html', badge:'NUEVO', isNew:true, tags:['puzzle'],
+    rec: () => { const n = sumOf('sk-sudoku-wins-'); return n ? `✅ ${plural(n, 'sudoku resuelto', 'sudokus resueltos')}` : ''; } },
+  { id:'ajolote', title:'Ajolote Volador', desc:'Toca para nadar entre los corales sin chocar. Gana medallas y supera tu récord.',
+    art:'🦎', artClass:'art-ajolote', href:'ajolote-volador.html', badge:'NUEVO', isNew:true, tags:['arcade'],
+    rec: () => { const n = maxOf('sk-ajolote-best-'); return n ? `🏆 Récord: ${n}` : ''; } },
+  { id:'naval', title:'Batalla Naval', desc:'Acomoda tu flota y hunde los 5 barcos de la compu antes que ella hunda los tuyos.',
+    art:'🚢', artClass:'art-naval', href:'batalla-naval.html', badge:'NUEVO', isNew:true, tags:['mesa', 'puzzle'],
+    rec: () => { const n = sumOf('sk-naval-wins-'); return n ? `🏆 ${plural(n, 'batalla ganada', 'batallas ganadas')}` : ''; } },
+  { id:'serpientes', title:'Serpientes y Escaleras', desc:'Tira el dado, sube escaleras y cuidado con las serpientes. Contra la compu o con amigos.',
+    art:'🪜', artClass:'art-serp', href:'serpientes.html', badge:'NUEVO', isNew:true, tags:['mesa', 'duelo'],
+    rec: () => { const n = lsNum('sk-serpientes-wins'); return n ? `🏆 ${plural(n, 'victoria', 'victorias')}` : ''; } },
+  { id:'juego-ajolote', title:'El Juego del Ajolote', desc:'Tipo Oca pero mexicano: de ajolote a ajolote, trajineras, taquería, cenote y cuidado con La Llorona.',
+    art:'💚', artClass:'art-oca', href:'juego-ajolote.html', badge:'NUEVO', isNew:true, tags:['mesa', 'duelo'],
+    rec: () => { const n = lsNum('sk-juego-ajolote-wins'); return n ? `🏆 ${plural(n, 'victoria', 'victorias')}` : ''; } },
   { id:'buscaminas', title:'Buscaminas', desc:'El clásico de las minas. Banderas con toque largo, 4 dificultades y el primer toque siempre es seguro.',
     art:'💣', artClass:'art-minas', href:'buscaminas.html', badge:'JUGAR', tags:['puzzle'],
     rec: () => { const n = sumOf('sk-bm-wins-'); return n ? `✅ ${plural(n, 'campo despejado', 'campos despejados')}` : ''; } },

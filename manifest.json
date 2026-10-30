@@ -1,7 +1,7 @@
 {
   "name": "SeaKingsGames",
   "short_name": "SeaKings",
-  "description": "Arcada de juegos clásicos en español: Ahorcado, Buscaminas, 2048, Sopa de letras, Conecta 4, Gato, Tuercas Locas y más.",
+  "description": "Arcada de juegos clásicos en español: Lotería, Dominó, Solitario, Sudoku, Ahorcado, Batalla Naval, Serpientes y Escaleras, Buscaminas, 2048 y más.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -52,6 +52,50 @@
       ]
     },
     {
+      "name": "Lotería",
+      "short_name": "Lotería",
+      "url": "./loteria.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Solitario",
+      "short_name": "Solitario",
+      "url": "./solitario.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Dominó",
+      "short_name": "Dominó",
+      "url": "./domino.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Sudoku",
+      "short_name": "Sudoku",
+      "url": "./sudoku.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
       "name": "Buscaminas",
       "short_name": "Buscaminas",
       "url": "./buscaminas.html",
@@ -63,9 +107,9 @@
       ]
     },
     {
-      "name": "2048",
-      "short_name": "2048",
-      "url": "./2048.html",
+      "name": "Batalla Naval",
+      "short_name": "Naval",
+      "url": "./batalla-naval.html",
       "icons": [
         {
           "src": "icon-192.png",
@@ -74,53 +118,9 @@
       ]
     },
     {
-      "name": "Sopa de letras",
-      "short_name": "Sopa",
-      "url": "./sopa-letras.html",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Conecta 4",
-      "short_name": "Conecta 4",
-      "url": "./conecta4.html",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Gato",
-      "short_name": "Gato",
-      "url": "./gato.html",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Tuercas Locas",
-      "short_name": "Tuercas",
-      "url": "./tuercas-locas.html",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Memoria",
-      "short_name": "Memoria",
-      "url": "./memoria.html",
+      "name": "Serpientes y Escaleras",
+      "short_name": "Serpientes",
+      "url": "./serpientes.html",
       "icons": [
         {
           "src": "icon-192.png",
