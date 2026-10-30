@@ -14,7 +14,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SeaKings">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="Arcada de juegos clásicos en español: Ahorcado, Buscaminas, 2048, Sopa de letras, Conecta 4, Gato, Tuercas Locas, Snake y más. Gratis y sin internet.">
+<meta name="description" content="Arcada de juegos clásicos en español: Ahorcado con palabra del día, Buscaminas, 2048, Sopa de letras, Conecta 4, Gato, Tuercas Locas, Snake y más. Gratis y sin internet.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SeaKingsGames · Juegos clásicos gratis">
+<meta property="og:description" content="Ahorcado con palabra del día, Buscaminas, 2048, Sopa de letras, Conecta 4 y más. Gratis, en español y sin internet.">
+<meta property="og:image" content="https://seakingsgames.github.io/SeaKingsClassicGames/og-arcada.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -128,6 +135,37 @@
   .art-gato   {background:radial-gradient(circle at 50% 40%,#ff7a8a 0%,#271a40 72%)}
   .pill.new{background:rgba(255,107,107,.2);color:var(--coral)}
 
+  /* ---------- PALABRA DEL DÍA ---------- */
+  .daily{
+    display:flex;align-items:center;gap:14px;max-width:844px;margin:0 auto 6px;padding:16px 18px;border-radius:22px;text-decoration:none;
+    background:linear-gradient(135deg,#ffd864 0%,#e0a020 100%);color:#3a2400;
+    box-shadow:0 6px 0 var(--gold-deep),0 14px 30px rgba(0,0,0,.35);transition:transform .1s;
+  }
+  .daily:active{transform:translateY(3px)}
+  .daily.done{background:linear-gradient(135deg,#6fd8a9 0%,#2f9e74 100%);color:#062b1b;box-shadow:0 6px 0 #22704f,0 14px 30px rgba(0,0,0,.35)}
+  .daily .d-ico{font-size:40px;line-height:1}
+  .daily .d-tag{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.75}
+  .daily .d-title{font-family:'Bagel Fat One',sans-serif;font-size:22px;line-height:1.15;margin:2px 0}
+  .daily .d-sub{font-size:13px;font-weight:600;opacity:.85}
+  .daily .play{margin-left:auto;flex-shrink:0;background:rgba(255,255,255,.45);color:inherit;box-shadow:none}
+  .daily-wrap{padding:4px 18px 0}
+
+  /* ---------- FILTROS Y RECIENTES ---------- */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex-shrink:0;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text-dim);font-family:inherit;font-weight:600;font-size:14px;cursor:pointer}
+  .chip.on{background:var(--gold);color:#3a2400;border-color:var(--gold)}
+  .recent{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+  .recent::-webkit-scrollbar{display:none}
+  .recent a{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 14px 10px 10px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid var(--line);text-decoration:none;color:#fff;font-weight:600;font-size:14px}
+  .recent a span{font-size:22px}
+  .card-rec{margin-top:8px;font-size:12px;font-weight:600;color:var(--cyan)}
+  .card.hide{display:none}
+
+  /* ---------- REDES ---------- */
+  .social{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 auto 16px;max-width:600px}
+  .social a,.social button{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff;text-decoration:none;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer}
+
   /* PWA install prompt */
   .install-prompt{
     position:fixed;bottom:80px;left:16px;right:16px;
@@ -224,8 +262,22 @@
 <!-- Banner desktop 728x90 -->
 <div class="ad-leaderboard" id="ad-top"></div>
 
+<div class="daily-wrap">
+  <a class="daily" id="daily" href="ahorcado.html?modo=diaria">
+    <div class="d-ico">📅</div>
+    <div><div class="d-tag" id="d-tag">🪢 AHORCADO DEL DÍA</div><div class="d-title" id="d-title">¡Ya salió la de hoy!</div><div class="d-sub" id="d-sub">La misma para todos y solo un intento. ¿La sacas?</div></div>
+    <div class="play">▶</div>
+  </a>
+</div>
+
+<section id="recent-sec" hidden>
+  <h2 class="section-title">Sigue jugando</h2>
+  <div class="recent" id="recent"></div>
+</section>
+
 <section>
   <h2 class="section-title">Juegos</h2>
+  <div class="chips" id="filters"></div>
   <div class="grid" id="games-grid"></div>
 
   <!-- Medium rectangle entre juegos y footer -->
@@ -236,7 +288,13 @@
 </section>
 
 <footer>
-  Hecho con <span class="heart">♥</span> por <a href="#">SeaKingsStudios</a><br>
+  <div class="social">
+    <a href="https://www.tiktok.com/@seakingsstudios" target="_blank" rel="noopener">🎵 @seakingsstudios</a>
+    <a href="https://www.tiktok.com/@litoelajolote" target="_blank" rel="noopener">💚 @litoelajolote</a>
+    <a href="https://www.seakingsstudios.com" target="_blank" rel="noopener">🌐 seakingsstudios.com</a>
+    <button id="btn-share-arcade">📤 Compartir la arcada</button>
+  </div>
+  Hecho con <span class="heart">♥</span> por <a href="https://www.seakingsstudios.com" target="_blank" rel="noopener">SeaKingsStudios</a><br>
   <span style="opacity:.6">© 2026 · Todos los derechos reservados</span>
 </footer>
 
@@ -316,111 +374,140 @@ function loadAd(containerEl, config) {
   containerEl.appendChild(ifr);
 }
 
+/* ---------- RÉCORDS GUARDADOS EN ESTE CELULAR ---------- */
+function lsKeys(prefix){ try { return Object.keys(localStorage).filter(k => k.startsWith(prefix) && !k.endsWith('-info')); } catch(e) { return []; } }
+function lsNum(k){ try { const v = parseFloat(localStorage.getItem(k)); return isNaN(v) ? 0 : v; } catch(e) { return 0; } }
+function lsJson(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch(e) { return d; } }
+const maxOf = p => Math.max(0, ...lsKeys(p).map(lsNum));
+const sumOf = p => lsKeys(p).reduce((s, k) => s + lsNum(k), 0);
+const countOf = p => lsKeys(p).length;
+const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+
 /* ---------- CATÁLOGO DE JUEGOS ---------- */
+const FILTERS = [
+  ['todos', '✨ Todos'], ['palabras', '🔤 Palabras'], ['puzzle', '🧩 Puzzles'], ['arcade', '🕹️ Arcade'], ['duelo', '👥 2 jugadores'],
+];
 const GAMES = [
-  {
-    title: 'Tuercas Locas',
-    desc:  'Ordena las piezas hexagonales en sus tornillos. 4 dificultades, niveles infinitos.',
-    art:   '🔩', artClass: 'art-tuercas',
-    href:  'tuercas-locas.html', badge: 'JUGAR', feature: true,
-  },
-  {
-    title: 'Ahorcado',
-    desc:  'El ahorcado definitivo. 25 temas, casi 1,500 palabras con pista, 4 dificultades y modo aleatorio.',
-    art:   '🪢', artClass: 'art-verdugo',
-    href:  'ahorcado.html', badge: 'MEJORADO', isNew: true,
-  },
-  {
-    title: 'Buscaminas',
-    desc:  'El clásico de las minas. Banderas con toque largo, 4 dificultades y el primer toque siempre es seguro.',
-    art:   '💣', artClass: 'art-minas',
-    href:  'buscaminas.html', badge: 'NUEVO', isNew: true,
-  },
-  {
-    title: '2048',
-    desc:  'Desliza y une números iguales hasta llegar a 2048. Tableros de 3×3 a 6×6 y deshacer.',
-    art:   '🔢', artClass: 'art-2048',
-    href:  '2048.html', badge: 'NUEVO', isNew: true,
-  },
-  {
-    title: 'Sopa de letras',
-    desc:  'Encuentra las palabras escondidas. 25 temas y modo "solo pistas" para retarte de verdad.',
-    art:   '🔍', artClass: 'art-sopa',
-    href:  'sopa-letras.html', badge: 'NUEVO', isNew: true,
-  },
-  {
-    title: 'Conecta 4',
-    desc:  'Junta 4 fichas en línea. Contra la compu en 3 niveles o con un amigo en el mismo celular.',
-    art:   '🔴', artClass: 'art-c4',
-    href:  'conecta4.html', badge: 'NUEVO', isNew: true,
-  },
-  {
-    title: 'Gato',
-    desc:  'El tres en raya de toda la vida. ¿Le puedes sacar un empate a la compu imposible?',
-    art:   '❌', artClass: 'art-gato',
-    href:  'gato.html', badge: 'NUEVO', isNew: true,
-  },
-  {
-    title: 'Memoria',
-    desc:  'Encuentra todos los pares antes de que te ganen los movimientos. 9 temas, 4 dificultades.',
-    art:   '🧠', artClass: 'art-memoria',
-    href:  'memoria.html', badge: 'JUGAR',
-  },
-  {
-    title: 'Snake',
-    desc:  'El clásico de la serpiente. 4 dificultades, modo con o sin paredes mortales.',
-    art:   '🐍', artClass: 'art-snake',
-    href:  'snake.html', badge: 'JUGAR',
-  },
-  {
-    title: 'Numpuz',
-    desc:  'El puzzle deslizante de números. Ordena del 1 al N en tableros de 3×3 hasta 6×6.',
-    art:   '🧩', artClass: 'art-numpuz',
-    href:  'numpuz.html', badge: 'JUGAR',
-  },
-  {
-    title: 'Tower',
-    desc:  'Apila bloques con timing perfecto. Cada perfecto suma combo. ¿Hasta qué piso llegas?',
-    art:   '🗼', artClass: 'art-tower',
-    href:  'tower.html', badge: 'JUGAR',
-  },
-  {
-    title: 'Smash Brick',
-    desc:  'Rompe ladrillos con tu pala. 20 niveles diseñados + infinito, 6 power-ups y multi-bola.',
-    art:   '🧱', artClass: 'art-smash',
-    href:  'smash-brick.html', badge: 'JUGAR',
-  },
+  { id:'tuercas', title:'Tuercas Locas', desc:'Ordena las piezas hexagonales en sus tornillos. 4 dificultades, niveles infinitos.',
+    art:'🔩', artClass:'art-tuercas', href:'tuercas-locas.html', badge:'JUGAR', feature:true, tags:['puzzle'],
+    rec: () => { const n = countOf('sk-tl-rec-'); return n ? `🏆 ${plural(n, 'récord', 'récords')}` : ''; } },
+  { id:'ahorcado', title:'Ahorcado', desc:'Palabra del día, reta a tus amigos con un link, contrarreloj y 34 temas con casi 2,300 palabras con pista.',
+    art:'🪢', artClass:'art-verdugo', href:'ahorcado.html', badge:'NUEVO', isNew:true, tags:['palabras', 'duelo'],
+    rec: () => { const a = lsJson('sk-ah-album', {}); const n = Object.values(a).reduce((s, l) => s + (l.length || 0), 0); return n ? `📚 ${plural(n, 'palabra descubierta', 'palabras descubiertas')}` : ''; } },
+  { id:'buscaminas', title:'Buscaminas', desc:'El clásico de las minas. Banderas con toque largo, 4 dificultades y el primer toque siempre es seguro.',
+    art:'💣', artClass:'art-minas', href:'buscaminas.html', badge:'JUGAR', tags:['puzzle'],
+    rec: () => { const n = sumOf('sk-bm-wins-'); return n ? `✅ ${plural(n, 'campo despejado', 'campos despejados')}` : ''; } },
+  { id:'2048', title:'2048', desc:'Desliza y une números iguales hasta llegar a 2048. Tableros de 3×3 a 6×6 y deshacer.',
+    art:'🔢', artClass:'art-2048', href:'2048.html', badge:'JUGAR', tags:['puzzle'],
+    rec: () => { const n = maxOf('sk-2048-tile-'); return n ? `🔢 Tu mejor ficha: ${n}` : ''; } },
+  { id:'sopa', title:'Sopa de letras', desc:'Encuentra las palabras escondidas. 33 temas y modo "solo pistas" para retarte de verdad.',
+    art:'🔍', artClass:'art-sopa', href:'sopa-letras.html', badge:'JUGAR', tags:['palabras'],
+    rec: () => { const n = countOf('sk-sopa-rec-'); return n ? `🏆 ${plural(n, 'récord', 'récords')}` : ''; } },
+  { id:'conecta4', title:'Conecta 4', desc:'Junta 4 fichas en línea. Contra la compu en 3 niveles o con un amigo en el mismo celular.',
+    art:'🔴', artClass:'art-c4', href:'conecta4.html', badge:'JUGAR', tags:['duelo', 'puzzle'],
+    rec: () => { const n = sumOf('sk-c4-wins-'); return n ? `🏆 ${plural(n, 'victoria', 'victorias')} contra la compu` : ''; } },
+  { id:'gato', title:'Gato', desc:'El tres en raya de toda la vida. ¿Le puedes sacar un empate a la compu imposible?',
+    art:'❌', artClass:'art-gato', href:'gato.html', badge:'JUGAR', tags:['duelo'],
+    rec: () => { const n = sumOf('sk-gato-wins-'); return n ? `🏆 ${plural(n, 'victoria', 'victorias')} contra la compu` : ''; } },
+  { id:'memoria', title:'Memoria', desc:'Encuentra todos los pares antes de que te ganen los movimientos. 9 temas, 4 dificultades.',
+    art:'🧠', artClass:'art-memoria', href:'memoria.html', badge:'JUGAR', tags:['puzzle'],
+    rec: () => { const n = countOf('sk-mm-rec-'); return n ? `🏆 ${plural(n, 'récord', 'récords')}` : ''; } },
+  { id:'snake', title:'Snake', desc:'El clásico de la serpiente. 4 dificultades, modo con o sin paredes mortales.',
+    art:'🐍', artClass:'art-snake', href:'snake.html', badge:'JUGAR', tags:['arcade'],
+    rec: () => { const n = maxOf('sk-snake-best-'); return n ? `🏆 Récord: ${n} pts` : ''; } },
+  { id:'numpuz', title:'Numpuz', desc:'El puzzle deslizante de números. Ordena del 1 al N en tableros de 3×3 hasta 6×6.',
+    art:'🧩', artClass:'art-numpuz', href:'numpuz.html', badge:'JUGAR', tags:['puzzle'],
+    rec: () => { const n = countOf('sk-numpuz-best-'); return n ? `🏆 ${plural(n, 'tablero resuelto', 'tableros resueltos')}` : ''; } },
+  { id:'tower', title:'Tower', desc:'Apila bloques con timing perfecto. Cada perfecto suma combo. ¿Hasta qué piso llegas?',
+    art:'🗼', artClass:'art-tower', href:'tower.html', badge:'JUGAR', tags:['arcade'],
+    rec: () => { const n = maxOf('sk-tower-best-'); return n ? `🏆 Récord: ${n} pts` : ''; } },
+  { id:'smash', title:'Smash Brick', desc:'Rompe ladrillos con tu pala. 20 niveles diseñados + infinito, 6 power-ups y multi-bola.',
+    art:'🧱', artClass:'art-smash', href:'smash-brick.html', badge:'JUGAR', tags:['arcade'],
+    rec: () => { const n = maxOf('sk-smashbrick-best-'); return n ? `🏆 Récord: ${n} pts` : ''; } },
 ];
 
 /* ---------- RENDER ---------- */
 const grid = document.getElementById('games-grid');
+function goTo(g, e){
+  Audio.init(); Audio.click();
+  try {
+    const r = lsJson('sk-recent', []).filter(id => id !== g.id); r.unshift(g.id);
+    localStorage.setItem('sk-recent', JSON.stringify(r.slice(0, 6)));
+  } catch(err) {}
+  if (e) e.preventDefault();
+  setTimeout(() => location.href = g.href, 120);
+}
 GAMES.forEach(g => {
   const a = document.createElement('a');
-  a.className = 'card' + (g.feature ? ' feature' : '') + (g.soon ? ' soon' : '');
-  a.href = g.href;
+  a.className = 'card' + (g.feature ? ' feature' : '');
+  a.href = g.href; a.dataset.tags = g.tags.join(' ');
+  let rec = ''; try { rec = g.rec(); } catch(e) {}
   a.innerHTML = `
     <div class="card-art ${g.artClass}">${g.art}</div>
     <div class="card-body">
       <h3>${g.title}</h3>
       <p>${g.desc}</p>
+      ${rec ? `<div class="card-rec">${rec}</div>` : ''}
       <div class="card-meta">
-        <span class="pill ${g.soon ? 'soon' : ''}${g.isNew ? ' new' : ''}">${g.badge}</span>
-        ${g.soon ? '' : '<div class="play">▶</div>'}
+        <span class="pill${g.isNew ? ' new' : ''}">${g.badge}</span>
+        <div class="play">▶</div>
       </div>
     </div>`;
-  if (!g.soon) {
-    a.addEventListener('mouseenter', () => { Audio.init(); Audio.hover(); });
-    a.addEventListener('click', (e) => {
-      Audio.init(); Audio.click();
-      // pequeño delay para que se oiga el sonido antes de navegar
-      if (g.href !== '#') {
-        e.preventDefault();
-        setTimeout(() => location.href = g.href, 120);
-      }
-    });
-  }
+  a.addEventListener('mouseenter', () => { Audio.init(); Audio.hover(); });
+  a.addEventListener('click', e => goTo(g, e));
   grid.appendChild(a);
 });
+
+/* filtros */
+const filtersEl = document.getElementById('filters');
+let filter = 'todos';
+FILTERS.forEach(([k, label]) => {
+  const b = document.createElement('button'); b.className = 'chip' + (k === filter ? ' on' : ''); b.textContent = label;
+  b.onclick = () => {
+    Audio.init(); Audio.hover(); filter = k;
+    filtersEl.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b));
+    grid.querySelectorAll('.card').forEach(c => c.classList.toggle('hide', k !== 'todos' && !c.dataset.tags.split(' ').includes(k)));
+  };
+  filtersEl.appendChild(b);
+});
+
+/* sigue jugando */
+(() => {
+  const ids = lsJson('sk-recent', []).filter(id => GAMES.some(g => g.id === id)).slice(0, 4);
+  if (!ids.length) return;
+  const box = document.getElementById('recent');
+  ids.forEach(id => {
+    const g = GAMES.find(x => x.id === id), a = document.createElement('a');
+    a.href = g.href; a.innerHTML = `<span>${g.art}</span>${g.title}`;
+    a.addEventListener('click', e => goTo(g, e));
+    box.appendChild(a);
+  });
+  document.getElementById('recent-sec').hidden = false;
+})();
+
+/* palabra del día */
+(() => {
+  const ds = new Date().toLocaleDateString('en-CA', { timeZone:'America/Mexico_City' });
+  const [y, m, d] = ds.split('-').map(Number);
+  const n = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(2026, 9, 30)) / 86400000) + 1;
+  const res = lsJson('sk-ah-daily-' + ds, null), streak = lsJson('sk-ah-dstreak', null);
+  document.getElementById('d-tag').textContent = `🪢 AHORCADO DEL DÍA #${n}`;
+  if (res) {
+    document.getElementById('daily').classList.add('done');
+    document.getElementById('d-title').textContent = res.won ? '✅ ¡Ya la resolviste!' : '💀 Hoy no salió';
+    document.getElementById('d-sub').textContent = `Mañana sale otra${streak && streak.cur > 1 && streak.last === ds ? ` · 🔥 llevas ${streak.cur} días` : ''}. Toca para ver tu resultado.`;
+  }
+  document.getElementById('daily').addEventListener('click', () => { Audio.init(); Audio.click(); });
+})();
+
+/* compartir la arcada */
+document.getElementById('btn-share-arcade').onclick = async () => {
+  Audio.init(); Audio.click();
+  const text = '🕹️ Juegos clásicos gratis en español: Ahorcado con palabra del día, Buscaminas, 2048, Sopa de letras y más.';
+  const url = location.href.split('#')[0].split('?')[0];
+  try { if (navigator.share) { await navigator.share({ text, url }); return; } } catch(e) { return; }
+  try { await navigator.clipboard.writeText(text + ' ' + url); alert('Link copiado'); } catch(e) {}
+};
 
 /* ---------- CARGAR ADS ---------- */
 window.addEventListener('load', () => {

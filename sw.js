@@ -3,7 +3,7 @@
    Cachea toda la app para uso offline
    ===================================================== */
 
-const VERSION = 'sk-v6';
+const VERSION = 'sk-v7';
 const STATIC_CACHE  = `seakings-static-${VERSION}`;
 const RUNTIME_CACHE = `seakings-runtime-${VERSION}`;
 
