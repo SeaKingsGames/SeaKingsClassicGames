@@ -177,6 +177,12 @@ function play(p, i, side, run){
   sfx.tone(t[0] === t[1] ? 520 : 420, .07, 'square', .08); sfx.tone(220, .05, 'triangle', .1, .04);
   msg(`${p === 0 ? 'Tiraste' : M().players[p] + ' tiró'} ${t[0]}|${t[1]}`);
   render();
+  const nw = document.querySelector('#table .tile.new');
+  if (nw) {
+    SK.fx.burst(nw, { colors:['#fff', '#d3f9d8', '#b2f2bb'], n: t[0] === t[1] ? 10 : 6, speed: 110, size: 4, g: 200, life: .4 });
+    if (t[0] === t[1] && t[0] >= 5) SK.fx.float(nw, `¡La mula de ${t[0]}!`, { color:'#ffd43b', size: 18 });
+  }
+  if (st.hands[p].length === 1) SK.fx.float($('table'), p === 0 ? '¡Te queda una!' : `¡A ${M().players[p]} le queda una!`, { color:'#ffa94d', size: 20 });
   if (!st.hands[p].length) return endHand('domino', p);
   next(run);
 }
@@ -215,6 +221,8 @@ function cpuChoose(p, moves){
 /* ---------- FIN DE MANO ---------- */
 function endHand(kind, winnerP){
   st.over = true; st.waiting = false; render();
+  if (kind === 'domino') { SK.fx.flash('#fff', 180); SK.fx.shake($('table'), .7); sfx.thud(); SK.fx.float($('table'), '¡DOMINÓ!', { color:'#ffd43b', size: 38, dy: 40, dur: 1100 }); }
+  else SK.fx.float($('table'), '¡Tranque!', { color:'#ffa94d', size: 32, dy: 40, dur: 1100 });
   const teams = M().teams, totals = st.hands.map(h => h.reduce((s, t) => s + pips(t), 0));
   let winTeam = -1, points = 0, title, sub;
   if (kind === 'domino') {
@@ -254,7 +262,7 @@ function endHand(kind, winnerP){
   setTimeout(() => {
     if (done) return endMatch();
     SK.result({
-      emoji: winTeam < 0 ? '🤝' : (meWin ? '🎉' : '😬'), lose: winTeam > 0, title, text: sub, extra,
+      emoji: winTeam < 0 ? '🤝' : (meWin ? '🎉' : '😬'), lose: winTeam > 0, celebrate: meWin, title, text: sub, extra,
       stats: st.scores.map((s, t) => [s, (st.mode === 'parejas' ? (t === 0 ? 'USTEDES' : 'ELLOS') : M().players[t].toUpperCase())]),
       buttons:[{ label:'Siguiente mano →', onClick: newHand }, { label:'Salir', kind:'ghost', onClick: toMenu }],
     });
@@ -264,7 +272,7 @@ function endMatch(){
   const win = st.scores.indexOf(Math.max(...st.scores)), me = win === 0;
   if (me) { SK.store.set(`sk-domino-wins-${st.mode}`, SK.store.get(`sk-domino-wins-${st.mode}`, 0) + 1); sfx.newRec(); }
   SK.result({
-    emoji: me ? '🏆' : '🤖', lose: !me,
+    emoji: me ? '🏆' : '🤖', lose: !me, celebrate: me ? 'big' : false,
     title: me ? (st.mode === 'parejas' ? '¡Ganaron la partida!' : '¡Ganaste la partida!') : `Ganó ${st.mode === 'parejas' ? 'el otro equipo' : M().players[win]}`,
     text: `Llegaron a ${GOAL} puntos en ${st.handNo} manos`,
     stats: st.scores.map((s, t) => [s, (st.mode === 'parejas' ? (t === 0 ? 'USTEDES' : 'ELLOS') : M().players[t].toUpperCase())]),

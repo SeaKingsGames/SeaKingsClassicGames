@@ -152,7 +152,11 @@ function drop(c, who){
   disc.style.setProperty('--from', `-${fall}px`);
   disc.style.setProperty('--dt', `${Math.round(180 + r * 45)}ms`);
   holes[r * C + c].appendChild(disc);
-  setTimeout(() => sfx.tone(180 + r * 25, .07, 'triangle', .14), 160 + r * 45);
+  setTimeout(() => {
+    sfx.tone(180 + r * 25, .07, 'triangle', .14);
+    SK.fx.burst(holes[r * C + c], { colors: who === 1 ? ['#ff6b6b', '#fff'] : ['#ffd43b', '#fff'], n: 5, speed: 90, size: 4, g: 250, life: .35 });
+    if (r === R - 1) SK.fx.shake($('board'), .15);
+  }, 160 + r * 45);
   return r;
 }
 function play(c){
@@ -254,7 +258,7 @@ function bestMove(board, lvl){
 function finish(winner, line){
   st.over = true; paintScore();
   st.starter = 3 - st.starter; // alterna quién empieza
-  if (line) line.forEach(([r, c]) => holes[r * C + c].querySelector('.disc')?.classList.add('win'));
+  if (line) line.forEach(([r, c], k) => { holes[r * C + c].querySelector('.disc')?.classList.add('win'); setTimeout(() => { SK.fx.sparkle(holes[r * C + c], { n: 8, speed: 150 }); sfx.tone(520 + k * 130, .08, 'triangle', .1); }, 200 + k * 110); });
   if (winner) st.score[winner - 1]++;
   paintScore();
   const human = st.mode === 'cpu';
@@ -270,7 +274,7 @@ function finish(winner, line){
   if (winner) $('status').textContent = title;
   const names = human ? ['TÚ', 'COMPU'] : ['ROJO', 'AMARILLO'];
   setTimeout(() => SK.result({
-    emoji, title, lose, text: `Marcador: ${st.score[0]} - ${st.score[1]}`,
+    emoji, title, lose, celebrate: !!winner && !(human && winner === 2), text: `Marcador: ${st.score[0]} - ${st.score[1]}`,
     stats: [[st.score[0], names[0]], [st.score[1], names[1]]],
     share: human && winner === 1 ? { emoji:'🔴', title:'¡LE GANÉ A LA COMPU!', game:'Conecta 4', sub:`Nivel ${LEVELS[st.level].label}`, big:`${st.score[0]} - ${st.score[1]}`, stats:[[st.score[0], 'GANADAS'], [st.streak, 'RACHA']], text:`🔴 Le gané a la compu en Conecta 4 (${LEVELS[st.level].label}). Marcador ${st.score[0]}-${st.score[1]}\nJuega: SeaKingsGames`, file:'logro-conecta4' } : null,
     buttons: [{ label:'Otra ronda →', onClick: newRound }, { label:'Volver al menú', kind:'ghost', onClick: toMenu }],

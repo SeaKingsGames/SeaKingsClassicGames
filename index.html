@@ -135,6 +135,7 @@
   .art-gato   {background:radial-gradient(circle at 50% 40%,#ff7a8a 0%,#271a40 72%)}
   .art-loteria{background:radial-gradient(circle at 50% 40%,#ff8a5c 0%,#5a1430 72%)}
   .art-sol    {background:radial-gradient(circle at 50% 40%,#40c057 0%,#0a3a1f 72%)}
+  .art-spider {background:radial-gradient(circle at 50% 40%,#7950f2 0%,#140d30 72%)}
   .art-sudoku {background:radial-gradient(circle at 50% 40%,#748ffc 0%,#1b2440 72%)}
   .art-domino {background:radial-gradient(circle at 50% 40%,#3aa572 0%,#14432f 72%)}
   .dmn{display:inline-flex;flex-direction:column;gap:5px;padding:6px;background:#fffdf5;border-radius:9px;box-shadow:0 4px 10px rgba(0,0,0,.4);transform:rotate(-12deg)}
@@ -416,6 +417,9 @@ const GAMES = [
   { id:'solitario', title:'Solitario', desc:'El Klondike de siempre: robar 1 o robar 3, deshacer, pistas y terminar automático.',
     art:'🃏', artClass:'art-sol', href:'solitario.html', badge:'NUEVO', isNew:true, tags:['mesa', 'puzzle'],
     rec: () => { const n = sumOf('sk-sol-wins-'); return n ? `🏆 ${plural(n, 'partida resuelta', 'partidas resueltas')}` : ''; } },
+  { id:'spider', title:'Solitario Spider', desc:'Arma escaleras del Rey al As del mismo palo. Con 1 palo (solo negras), 2 o 4 palos.',
+    art:'🕷️', artClass:'art-spider', href:'spider.html', badge:'NUEVO', isNew:true, tags:['mesa', 'puzzle'],
+    rec: () => { const n = sumOf('sk-spider-wins-'); return n ? `🏆 ${plural(n, 'partida resuelta', 'partidas resueltas')}` : ''; } },
   { id:'domino', title:'Dominó', desc:'En parejas con la compu, mano a mano con pozo o todos contra todos, a 100 puntos.',
     art: dominoArt(6, 3), artClass:'art-domino', href:'domino.html', badge:'NUEVO', isNew:true, tags:['mesa'],
     rec: () => { const n = sumOf('sk-domino-wins-'); return n ? `🏆 ${plural(n, 'partida ganada', 'partidas ganadas')}` : ''; } },

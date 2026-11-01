@@ -1,7 +1,7 @@
 {
   "name": "SeaKingsGames",
   "short_name": "SeaKings",
-  "description": "Arcada de juegos clásicos en español: Lotería, Dominó, Solitario, Sudoku, Ahorcado, Batalla Naval, Serpientes y Escaleras, Buscaminas, 2048 y más.",
+  "description": "Arcada de juegos clásicos en español: Lotería, Dominó, Solitario, Spider, Sudoku, Ahorcado, Batalla Naval, Serpientes y Escaleras, Buscaminas, 2048 y más.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

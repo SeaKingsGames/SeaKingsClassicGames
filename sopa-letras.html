@@ -266,7 +266,9 @@ const finish = () => {
   // guarda la posición real (por si la marcó al revés)
   w.x0 = a.x; w.y0 = a.y; w.dx = dx; w.dy = dy;
   drawCap(a.x, a.y, b.x, b.y, w.color, false);
-  sfx.good(); if (navigator.vibrate) navigator.vibrate(20);
+  sfx.good(); SK.fx.vibrate(20);
+  for (let k = 0; k < len; k++) { const el = st.cells[(a.y + dy * k) * st.n + a.x + dx * k]; setTimeout(() => SK.fx.burst(el, { colors:[w.color, '#fff'], n: 4, speed: 100, size: 4, g: 120, life: .4 }), k * 40); }
+  SK.fx.float(st.cells[(a.y + dy * ((len / 2) | 0)) * st.n + a.x + dx * ((len / 2) | 0)], w.word || txt, { color:'#fff', size: 20 });
   renderWords();
   if (st.found === st.words.length) win();
 };
@@ -294,7 +296,7 @@ function win(){
   sfx.win();
   const d = DIFFS[st.diff], c = CATS[st.cat];
   setTimeout(() => SK.result({
-    emoji:'🎉', title:'¡Las encontraste todas!', text:`${c.ico} ${c.label}${st.mode === 'pistas' ? ' · modo pistas' : ''}`, newRecord:isRec,
+    emoji:'🎉', title:'¡Las encontraste todas!', celebrate: true, text:`${c.ico} ${c.label}${st.mode === 'pistas' ? ' · modo pistas' : ''}`, newRecord:isRec,
     stats:[[SK.fmtTime(st.elapsed), 'TIEMPO'], [st.words.length, 'PALABRAS'], [3 - st.hints, 'AYUDAS']],
     share:{ emoji:'🔍', title:'¡SOPA COMPLETADA!', game:'Sopa de letras', sub:`${d.label} · ${c.label}`, big:SK.fmtTime(st.elapsed), stats:[[st.words.length, 'PALABRAS'], [SK.fmtTime(st.elapsed), 'TIEMPO']], text:`🔍 Sopa de letras ${d.label} (${c.label}): ${st.words.length} palabras en ${SK.fmtTime(st.elapsed)}\nJuega: SeaKingsGames`, file:'logro-sopa' },
     buttons:[{ label:'Otra sopa →', onClick: newGame }, { label:'Cambiar categoría', kind:'ghost', onClick: toMenu }],

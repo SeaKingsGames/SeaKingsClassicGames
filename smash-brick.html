@@ -369,6 +369,7 @@
   </div>
 </div>
 
+<script src="comun.js"></script>
 <script>
 /* =====================================================
    SMASH BRICK · SeaKingsGames
@@ -1323,6 +1324,7 @@ function onLevelClear(){
     $('lc-msg').textContent = '¡Sigue así!';
   }
   $('modal-levelclear').classList.add('active');
+  if (window.SK) SK.fx.celebrate(isCampaignDone);
 }
 
 function nextLevel(){
@@ -1346,6 +1348,7 @@ function onGameOver(){
   $('go-level').textContent = state.level;
   $('go-bricks').textContent = state.bricksDestroyed;
   $('new-record-tag').style.display = isNewRec ? 'block' : 'none';
+  if (isNewRec && window.SK) setTimeout(() => SK.fx.celebrate(true), 300);
   if (isNewRec) {
     $('go-emoji').textContent = '🎉';
     $('go-title').textContent = '¡Nuevo récord!';

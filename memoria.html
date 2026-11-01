@@ -366,6 +366,7 @@
   <button class="close" id="btn-install-close">✕</button>
 </div>
 
+<script src="comun.js"></script>
 <script>
 /* =====================================================
    MEMORIA · SeaKingsGames
@@ -608,6 +609,7 @@ function onCardClick(i){
         cardA.matched = true; cardB.matched = true;
         $('board').children[a].classList.add('matched');
         $('board').children[b].classList.add('matched');
+        if (window.SK) [a, b].forEach(k => SK.fx.sparkle($('board').children[k], { n: 8, speed: 140 }));
         state.pairsFound++;
         $('stat-matches').textContent = `${state.pairsFound}/${state.pairsTotal}`;
         SFX.match();

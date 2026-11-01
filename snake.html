@@ -297,6 +297,7 @@
   </div>
 </div>
 
+<script src="comun.js"></script>
 <script>
 /* =====================================================
    SNAKE · SeaKingsGames
@@ -494,6 +495,9 @@ function step(){
     $('stat-score').textContent = state.score;
     SFX.eat(500 + state.length*15);
     state.eatPulse = 8;
+    if (window.SK) { const r = $('board').getBoundingClientRect(), c = state.cellSize, pt = { x: r.left + (nx + .5) * c, y: r.top + (ny + .5) * c };
+      SK.fx.burst(pt, { colors:['#ff6b6b', '#ffd43b', '#fff'], n: 8, speed: 130, size: 4, g: 150, life: .45 });
+      if (state.score % 50 === 0) { SK.fx.float(pt, `${state.score}`, { color:'#ffd43b', size: 22 }); SK.fx.ring(pt, { color:'#ffd43b', size: 50 }); } }
     placeFood();
     // acelerar levemente cada 5 comidas (capa de tensión)
     if (state.length % 5 === 0 && state.speed > 50) state.speed = Math.max(50, state.speed - 4);
@@ -507,6 +511,7 @@ function crash(){
   state.running = false;
   state.shake = 12;
   SFX.crash();
+  if (window.SK && state.snake[0]) { const r = $('board').getBoundingClientRect(), c = state.cellSize, h = state.snake[0]; SK.fx.burst({ x: r.left + (h.x + .5) * c, y: r.top + (h.y + .5) * c }, { colors:['#5fc99a', '#2b8a3e', '#fff'], n: 18, speed: 220, size: 5, g: 300, life: .6 }); SK.fx.vibrate(70); }
   stopTimer();
   setTimeout(onGameOver, 700);
 }

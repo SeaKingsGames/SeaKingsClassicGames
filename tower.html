@@ -308,6 +308,7 @@
   </div>
 </div>
 
+<script src="comun.js"></script>
 <script>
 /* =====================================================
    TOWER · SeaKingsGames
@@ -672,6 +673,7 @@ function dropBlock(){
     state.score += 10 + state.combo * 2;
     SFX.perfect(state.combo);
     showPerfectPop(prev.x + prev.w/2, mov.y);
+    if (window.SK) { const r = $('game').getBoundingClientRect(), pt = { x: r.left + r.width / 2, y: r.top + (mov.y - state.cameraY) }; SK.fx.sparkle(pt, { n: 6 + Math.min(10, state.combo * 2), speed: 160 }); if (state.combo >= 3) SK.fx.vibrate(20); }
     $('floor-num').classList.add('perfect');
     setTimeout(() => $('floor-num').classList.remove('perfect'), 600);
     if (state.combo >= 2) showCombo(state.combo);
@@ -810,6 +812,7 @@ function onGameOver(){
   $('go-score').textContent = state.score;
   $('go-perfect').textContent = perfects;
   $('new-record-tag').style.display = isNewRec ? 'block' : 'none';
+  if (isNewRec && window.SK) setTimeout(() => SK.fx.celebrate(state.score > 200), 300);
   if (isNewRec) {
     $('go-emoji').textContent = '🎉';
     $('go-title').textContent = '¡Nuevo récord!';

@@ -313,6 +313,7 @@
   </div>
 </div>
 
+<script src="comun.js"></script>
 <script>
 /* =====================================================
    NUMPUZ · SeaKingsGames
@@ -558,6 +559,8 @@ function onTileClick(value){
   $('stat-moves').textContent = state.moves;
   SFX.slide(450 + Math.min(state.moves*3, 300));
   updateTilePositions();
+  // brillito cuando la ficha llega a su lugar correcto
+  if (window.SK && value === emptyIdx + 1) setTimeout(() => SK.fx.burst(state.tilesEls[value], { colors:['#ffd43b', '#fff'], n: 5, speed: 90, size: 4, g: 120, life: .35 }), 140);
 
   if (isSolved(state.tiles)) setTimeout(onWin, 320);
 }

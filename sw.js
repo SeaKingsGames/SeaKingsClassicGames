@@ -3,7 +3,7 @@
    Cachea toda la app para uso offline
    ===================================================== */
 
-const VERSION = 'sk-v8';
+const VERSION = 'sk-v9';
 const STATIC_CACHE  = `seakings-static-${VERSION}`;
 const RUNTIME_CACHE = `seakings-runtime-${VERSION}`;
 
@@ -26,6 +26,7 @@ const APP_SHELL = [
   './smash-brick.html',
   './loteria.html',
   './solitario.html',
+  './spider.html',
   './domino.html',
   './sudoku.html',
   './ajolote-volador.html',

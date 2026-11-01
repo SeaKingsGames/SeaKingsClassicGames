@@ -354,6 +354,7 @@
   </div>
 </div>
 
+<script src="comun.js"></script>
 <script>
 /* =====================================================
    TUERCAS LOCAS · SeaKingsGames
@@ -571,6 +572,9 @@ function onStackClick(i) {
   from.pop();
   to.push(piece);
   state.selected = null;
+  if (window.SK && to.length === state.capacity && to.every(c => c === piece)) {
+    setTimeout(() => { const el = board.children[i]; SK.fx.sparkle(el, { n: 14 }); SK.fx.ring(el, { size: 70 }); SK.fx.float(el, '¡Listo!', { color:'#ffd43b', size: 20 }); SK.fx.vibrate(25); }, 120);
+  }
   // arrancar timer al primer movimiento
   if (!state.ticking) {
     state.ticking = true;
@@ -648,6 +652,7 @@ function showWin() {
   $('win-moves').textContent = m;
   $('new-record-tag').style.display = isNewRec ? 'block' : 'none';
   openModal('modal-win', 'ad-win', ADS.medium250);
+  if (window.SK) SK.fx.celebrate(isNewRec);
 }
 function showStuck()  { Audio.stuck(); openModal('modal-stuck','ad-stuck',  ADS.medium250); }
 function showRestart(){ openModal('modal-restart','ad-restart',ADS.medium250); }
