@@ -211,12 +211,23 @@ const SK = (() => {
   /* ---------- LOGRO PARA COMPARTIR ---------- */
   function cssVar(n, d){ const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim(); return v || d; }
   function roundRect(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+  // la ilustración del juego (la de arriba del menú) también sale en la imagen para compartir
+  let artImg = null;
+  function loadArt(){
+    const h = document.querySelector('.sk-hero'); if (!h || artImg) return;
+    artImg = new Image(); artImg.src = h.currentSrc || h.src;
+    // fondo difuminado con la ilustración del juego
+    document.body.style.setProperty('--sk-art', `url("${h.getAttribute('src')}")`); document.body.classList.add('sk-has-art');
+  }
+  addEventListener('DOMContentLoaded', loadArt); setTimeout(loadArt, 0);
   function achievementCanvas(o){
     const c = document.createElement('canvas'); c.width = 1080; c.height = 1080;
     const x = c.getContext('2d');
     const bg1 = cssVar('--panel', '#3d4e60'), bg2 = cssVar('--bg-2', '#1c2a3a'), acc = cssVar('--accent', '#f4cf3a'), ink = cssVar('--accent-ink', '#3a2400');
     const g = x.createLinearGradient(0, 0, 0, 1080); g.addColorStop(0, bg1); g.addColorStop(1, bg2);
     x.fillStyle = g; x.fillRect(0, 0, 1080, 1080);
+    const art = artImg && artImg.complete && artImg.naturalWidth ? artImg : null;
+    if (art) return artCanvas(c, x, o, art, { bg2, acc, ink });
     x.strokeStyle = acc; x.lineWidth = 18; x.strokeRect(40, 40, 1000, 1000);
     x.textAlign = 'center';
     x.font = '170px sans-serif'; x.fillText(o.emoji || '🏆', 540, 230);
@@ -236,6 +247,37 @@ const SK = (() => {
       x.globalAlpha = .7; x.font = 'bold 26px sans-serif'; x.fillText(lbl, cx, 822); x.globalAlpha = 1;
     });
     x.fillStyle = acc; x.font = 'bold 48px sans-serif'; x.fillText('SeaKingsGames', 540, 990);
+    return c;
+  }
+  function artCanvas(c, x, o, art, { bg2, acc, ink }){
+    const H = 470, k = Math.max(1080 / art.naturalWidth, H / art.naturalHeight), w = art.naturalWidth * k, h = art.naturalHeight * k;
+    x.drawImage(art, (1080 - w) / 2, (H - h) / 2, w, h);
+    const f = x.createLinearGradient(0, 300, 0, H + 2); f.addColorStop(0, 'rgba(0,0,0,0)'); f.addColorStop(1, bg2);
+    x.fillStyle = f; x.fillRect(0, 300, 1080, H - 298);
+    x.strokeStyle = acc; x.lineWidth = 18; x.strokeRect(40, 40, 1000, 1000);
+    // medallón con el emoji
+    x.fillStyle = bg2; x.beginPath(); x.arc(540, 440, 78, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = acc; x.lineWidth = 8; x.stroke();
+    x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '92px sans-serif'; x.fillText(o.emoji || '🏆', 540, 446);
+    x.textBaseline = 'alphabetic';
+    x.fillStyle = acc; x.font = 'bold 50px sans-serif'; x.fillText(o.title || '¡LOGRO!', 540, 578);
+    x.fillStyle = '#fff'; let fs = 84; x.font = `bold ${fs}px sans-serif`;
+    while (x.measureText(o.game).width > 900 && fs > 40) { fs -= 4; x.font = `bold ${fs}px sans-serif`; }
+    x.fillText(o.game, 540, 664);
+    x.fillStyle = 'rgba(255,255,255,.7)'; x.font = 'bold 34px sans-serif'; x.fillText(o.sub || '', 540, 714);
+    if (o.big) {
+      x.fillStyle = '#fff'; let bs = 62; x.font = `bold ${bs}px sans-serif`;
+      while (x.measureText(o.big).width > 900 && bs > 28) { bs -= 4; x.font = `bold ${bs}px sans-serif`; }
+      x.fillText(o.big, 540, 790);
+    }
+    x.fillStyle = acc; roundRect(x, 90, 818, 900, 168, 28); x.fill();
+    const st = (o.stats || []).slice(0, 3), n = st.length || 1;
+    st.forEach(([val, lbl], i) => {
+      const cx = 90 + 900 * (i + .5) / n;
+      x.fillStyle = ink; x.font = 'bold 70px sans-serif'; x.fillText(String(val), cx, 905);
+      x.globalAlpha = .7; x.font = 'bold 24px sans-serif'; x.fillText(lbl, cx, 952); x.globalAlpha = 1;
+    });
+    x.fillStyle = acc; x.font = 'bold 40px sans-serif'; x.fillText('SeaKingsGames', 540, 1022);
     return c;
   }
   function downloadCanvas(c, name){
@@ -273,6 +315,12 @@ const SK = (() => {
     const h = m.querySelector('h2'); h.textContent = o.title || ''; h.classList.toggle('lose', !!o.lose);
     const t = m.querySelector('.txt'); t.textContent = o.text || ''; t.style.display = o.text ? '' : 'none';
     const ex = m.querySelector('.extra'); ex.innerHTML = ''; if (o.extra) ex.appendChild(o.extra);
+    // la ilustración del juego arriba de los resultados (no en los avisos de confirmar)
+    const showArt = artImg && artImg.naturalWidth && (o.share || o.celebrate || o.stats);
+    let mart = m.querySelector('.modal-art');
+    if (showArt) { if (!mart) { mart = document.createElement('img'); mart.className = 'modal-art'; mart.alt = ''; m.querySelector('.modal').prepend(mart); } mart.src = artImg.src; mart.style.display = ''; }
+    else if (mart) mart.style.display = 'none';
+    m.querySelector('.modal').classList.toggle('with-art', !!showArt);
     const card = m.querySelector('.achievement-card'), sts = m.querySelector('.ach-stats'); sts.innerHTML = '';
     if (o.stats && o.stats.length) {
       card.style.display = '';
