@@ -147,7 +147,7 @@
   .art-ajolote{background:linear-gradient(180deg,#37b6d6 0%,#0b4f6c 60%,#062b3d 100%)}
   .art-naval  {background:radial-gradient(circle at 50% 40%,#3b82c4 0%,#0d2a4a 72%)}
   .art-serp   {background:radial-gradient(circle at 50% 40%,#69db7c 0%,#1e3a2a 72%)}
-  .art-oca    {background:radial-gradient(circle at 50% 40%,#e64980 0%,#5a2a4a 72%)}
+  .art-oca    {background:#5a2a4a url(img/ajolote/portada.jpg) center 40%/cover}
   .pill.new{background:rgba(255,107,107,.2);color:var(--coral)}
 
   /* ---------- PALABRA DEL DÍA ---------- */
@@ -436,7 +436,7 @@ const GAMES = [
     art:'🪜', artClass:'art-serp', href:'serpientes.html', badge:'NUEVO', isNew:true, tags:['mesa', 'duelo'],
     rec: () => { const n = lsNum('sk-serpientes-wins'); return n ? `🏆 ${plural(n, 'victoria', 'victorias')}` : ''; } },
   { id:'juego-ajolote', title:'El Juego del Ajolote', desc:'Tipo Oca pero mexicano: de ajolote a ajolote, trajineras, taquería, cenote y cuidado con La Llorona.',
-    art:'💚', artClass:'art-oca', href:'juego-ajolote.html', badge:'NUEVO', isNew:true, tags:['mesa', 'duelo'],
+    art:'', thumb:'img/ajolote/ajolote.jpg', artClass:'art-oca', href:'juego-ajolote.html', badge:'NUEVO', isNew:true, tags:['mesa', 'duelo'],
     rec: () => { const n = lsNum('sk-juego-ajolote-wins'); return n ? `🏆 ${plural(n, 'victoria', 'victorias')}` : ''; } },
   { id:'buscaminas', title:'Buscaminas', desc:'El clásico de las minas. Banderas con toque largo, 4 dificultades y el primer toque siempre es seguro.',
     art:'💣', artClass:'art-minas', href:'buscaminas.html', badge:'JUGAR', tags:['puzzle'],
@@ -522,7 +522,7 @@ FILTERS.forEach(([k, label]) => {
   const box = document.getElementById('recent');
   ids.forEach(id => {
     const g = GAMES.find(x => x.id === id), a = document.createElement('a');
-    a.href = g.href; a.innerHTML = `<span>${g.art}</span>${g.title}`;
+    a.href = g.href; a.innerHTML = `<span>${g.art || (g.thumb ? `<img src="${g.thumb}" alt="" style="width:24px;height:24px;border-radius:7px;display:block">` : '')}</span>${g.title}`;
     a.addEventListener('click', e => goTo(g, e));
     box.appendChild(a);
   });

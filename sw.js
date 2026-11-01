@@ -3,7 +3,7 @@
    Cachea toda la app para uso offline
    ===================================================== */
 
-const VERSION = 'sk-v9';
+const VERSION = 'sk-v10';
 const STATIC_CACHE  = `seakings-static-${VERSION}`;
 const RUNTIME_CACHE = `seakings-runtime-${VERSION}`;
 
@@ -34,6 +34,18 @@ const APP_SHELL = [
   './serpientes.html',
   './juego-ajolote.html',
   './tablero.js',
+  './img/ajolote/ajolote.jpg',
+  './img/ajolote/trajinera.jpg',
+  './img/ajolote/embarcadero.jpg',
+  './img/ajolote/taqueria.jpg',
+  './img/ajolote/chapulin.jpg',
+  './img/ajolote/cenote.jpg',
+  './img/ajolote/metro.jpg',
+  './img/ajolote/trafico.jpg',
+  './img/ajolote/llorona.jpg',
+  './img/ajolote/tianguis.jpg',
+  './img/ajolote/meta.jpg',
+  './img/ajolote/portada.jpg',
   './palabras.js',
   './comun.js',
   './comun.css',

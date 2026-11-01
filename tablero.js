@@ -50,6 +50,8 @@ function Tablero(cfg){
     @keyframes tbPulse{0%,100%{box-shadow:0 4px 0 var(--accent-deep),0 0 0 0 rgba(255,212,59,.55)}50%{box-shadow:0 4px 0 var(--accent-deep),0 0 0 10px rgba(255,212,59,0)}}
     .tb-banner{position:absolute;left:50%;top:50%;z-index:5;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 22px;border-radius:20px;color:#fff;font-family:'Bagel Fat One','Fredoka',system-ui,sans-serif;font-size:24px;text-align:center;line-height:1.05;box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 3px rgba(255,255,255,.5);pointer-events:none;animation:tbBanner var(--ms,1300ms) ease-out forwards;white-space:nowrap}
     .tb-banner b{font-size:48px;line-height:1;font-family:sans-serif}
+    .tb-banner b img{display:block;width:min(34vw,140px);height:min(34vw,140px);border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.4),0 0 0 3px rgba(255,255,255,.85);margin-bottom:6px}
+    .tb-banner.has-img{padding:12px 16px 14px}
     @keyframes tbBanner{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-8deg)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.12) rotate(2deg)}24%{transform:translate(-50%,-50%) scale(1)}82%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(.9)}}
     .tb-dark{position:absolute;inset:0;z-index:4;background:radial-gradient(circle,rgba(10,20,40,.35),rgba(0,0,10,.85));pointer-events:none;animation:tbDark var(--ms,1600ms) ease-in-out forwards}
     @keyframes tbDark{0%,100%{opacity:0}20%,75%{opacity:1}}
@@ -174,7 +176,9 @@ function Tablero(cfg){
   function banner(ico, title, color, ms = 1300){
     const d = document.createElement('div'); d.className = 'tb-banner';
     d.style.background = color || 'linear-gradient(180deg,#ff8a5c,#e8590c)'; d.style.setProperty('--ms', ms + 'ms');
-    d.innerHTML = '<b></b><span></span>'; d.firstChild.textContent = ico; d.lastChild.textContent = title;
+    d.innerHTML = '<b></b><span></span>'; d.lastChild.textContent = title;
+    if (ico && ico.img) { const im = document.createElement('img'); im.src = ico.img; im.alt = ''; d.firstChild.appendChild(im); d.classList.add('has-img'); }
+    else d.firstChild.textContent = ico;
     $('tb-board').appendChild(d); setTimeout(() => d.remove(), ms + 50);
   }
   function darken(ms = 1600){ const d = document.createElement('div'); d.className = 'tb-dark'; d.style.setProperty('--ms', ms + 'ms'); $('tb-board').appendChild(d); setTimeout(() => d.remove(), ms + 50); }
